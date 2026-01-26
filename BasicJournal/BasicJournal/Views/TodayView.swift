@@ -54,8 +54,12 @@ struct TodayView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: Theme.Spacing.xl) {
                         // Header with date
-                        TodayHeaderView()
-                            .padding(.top, Theme.Spacing.md)
+                        ScreenHeaderView(
+                            title: formattedDate,
+                            subtitle: formattedWeekday,
+                            alignment: .center
+                        )
+                        .padding(.top, Theme.Spacing.md)
 
                         // Main content based on state
                         if let todayEntry = viewModel.todayEntry,
@@ -67,32 +71,13 @@ struct TodayView: View {
 
                         Spacer(minLength: 120)
                     }
-                    .padding(.horizontal, Theme.Spacing.xs)
+                    .padding(.horizontal, Theme.Spacing.lg)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
         }
     }
-}
 
-// MARK: - Today Header
-
-struct TodayHeaderView: View {
-    var body: some View {
-        VStack(spacing: Theme.Spacing.xs) {
-            Text(formattedWeekday)
-                .font(Theme.Typography.caption())
-                .foregroundColor(Theme.Colors.textTertiary)
-                .textCase(.uppercase)
-                .tracking(1.2)
-
-            Text(formattedDate)
-                .font(Theme.Typography.displayMedium())
-                .foregroundColor(Theme.Colors.textPrimary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Theme.Spacing.md)
-    }
 
     private var formattedWeekday: String {
         let formatter = DateFormatter()

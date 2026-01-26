@@ -26,22 +26,13 @@ struct SettingsView: View {
                 .ignoresSafeArea()
 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: Theme.Spacing.xl) {
+                    VStack(spacing: Theme.Spacing.md) {
                         // Header
-                        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                            Text("Configure")
-                                .font(Theme.Typography.caption())
-                                .foregroundColor(Theme.Colors.textTertiary)
-                                .textCase(.uppercase)
-                                .tracking(1.2)
-
-                            Text("Settings")
-                                .font(Theme.Typography.displayLarge())
-                                .foregroundColor(Theme.Colors.textPrimary)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Theme.Spacing.lg)
-                        .padding(.top, Theme.Spacing.md)
+                        ScreenHeaderView(
+                            title: "Settings",
+                            subtitle: "",
+                            alignment: .leading
+                        )
 
                         // Reminder Section
                         SettingsSectionCard(title: "Reminders") {
@@ -65,12 +56,12 @@ struct SettingsView: View {
                                     )
                                 }
                             }
-                        }
+                        }  .padding(.horizontal, Theme.Spacing.lg)
 
                         // Privacy Section
                         SettingsSectionCard(title: "Privacy") {
                             SettingsPrivacyRow()
-                        }
+                        }  .padding(.horizontal, Theme.Spacing.lg)
 
                         // About Section
                         SettingsSectionCard(title: "About") {
@@ -91,24 +82,9 @@ struct SettingsView: View {
                                     value: "Prototype"
                                 )
                             }
-                        }
-
-                        // App branding
-                        VStack(spacing: Theme.Spacing.sm) {
-                            AnimatedGradientOrb(size: 60)
-
-                            Text("One Thing")
-                                .font(Theme.Typography.headline())
-                                .foregroundColor(Theme.Colors.textPrimary)
-
-                            Text("A simple daily voice journal")
-                                .font(Theme.Typography.caption())
-                                .foregroundColor(Theme.Colors.textSecondary)
-                        }
-                        .padding(.top, Theme.Spacing.xl)
-                        .padding(.bottom, 120)
+                        }  .padding(.horizontal, Theme.Spacing.lg)
                     }
-                    .padding(.horizontal, Theme.Spacing.lg)
+                  
                 }
             }
             .navigationBarHidden(true)

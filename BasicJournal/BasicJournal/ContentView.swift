@@ -108,7 +108,7 @@ struct LiquidGlassTabBar: View {
             .shadow(color: .black.opacity(0.1), radius: 15, y: 5)
         )
         .padding(.horizontal, Theme.Spacing.xxl) // Float in from sides
-        .padding(.bottom, Theme.Spacing.md) // Float up from bottom
+        .padding(.bottom, Theme.Spacing.sm) // Float up from bottom
     }
 }
 

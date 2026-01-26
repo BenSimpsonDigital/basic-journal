@@ -31,21 +31,12 @@ struct TimelineView: View {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                             // Header
-                            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                                Text("Your")
-                                    .font(Theme.Typography.caption())
-                                    .foregroundColor(Theme.Colors.textTertiary)
-                                    .textCase(.uppercase)
-                                    .tracking(1.2)
+                            ScreenHeaderView(
+                                title: "Timeline",
+                                subtitle: "",
+                                alignment: .leading
+                            )
 
-                                Text("Timeline")
-                                    .font(Theme.Typography.displayLarge())
-                                    .foregroundColor(Theme.Colors.textPrimary)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, Theme.Spacing.lg)
-                            .padding(.top, Theme.Spacing.md)
-                            .padding(.bottom, Theme.Spacing.lg)
 
                             ForEach(viewModel.entriesByDate, id: \.date) { group in
                                 Section {
@@ -59,8 +50,9 @@ struct TimelineView: View {
                                     TimelineSectionHeader(title: group.date)
                                 }
                             }
+                            .padding(.horizontal, Theme.Spacing.lg)
                         }
-                        .padding(.horizontal, Theme.Spacing.lg)
+                      
                         .padding(.bottom, 120)
                     }
                 }

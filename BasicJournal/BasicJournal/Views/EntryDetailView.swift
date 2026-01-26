@@ -51,7 +51,7 @@ struct EntryDetailView: View {
                             .textCase(.uppercase)
                             .tracking(1)
                     }
-                    .padding(.top, Theme.Spacing.md)
+                    .padding(.top, Theme.Spacing.lg)
 
                     // Audio player card
                     if entry.hasAudio {

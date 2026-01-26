@@ -28,21 +28,11 @@ struct SearchView: View {
 
                 VStack(spacing: 0) {
                     // Header
-                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                        Text("Find")
-                            .font(Theme.Typography.caption())
-                            .foregroundColor(Theme.Colors.textTertiary)
-                            .textCase(.uppercase)
-                            .tracking(1.2)
-
-                        Text("Search")
-                            .font(Theme.Typography.displayLarge())
-                            .foregroundColor(Theme.Colors.textPrimary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Theme.Spacing.lg)
-                    .padding(.top, Theme.Spacing.md)
-                    .padding(.bottom, Theme.Spacing.md)
+                    ScreenHeaderView(
+                        title: "Search",
+                        subtitle: "",
+                        alignment: .leading
+                    )
 
                     // Search bar
                     SearchInputBar(
