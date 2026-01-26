@@ -32,7 +32,6 @@ struct MainTabView: View {
     init(viewModel: JournalViewModel, selectedTab: Binding<Int>) {
         self.viewModel = viewModel
         self._selectedTab = selectedTab
-        UITabBar.appearance().isHidden = true
     }
 
     var body: some View {
@@ -41,15 +40,19 @@ struct MainTabView: View {
             TabView(selection: $selectedTab) {
                 TodayView(viewModel: viewModel)
                     .tag(0)
+                    .toolbar(.hidden, for: .tabBar)
 
                 TimelineView(viewModel: viewModel)
                     .tag(1)
+                    .toolbar(.hidden, for: .tabBar)
 
                 SearchView(viewModel: viewModel)
                     .tag(2)
+                    .toolbar(.hidden, for: .tabBar)
 
                 SettingsView(viewModel: viewModel)
                     .tag(3)
+                    .toolbar(.hidden, for: .tabBar)
             }
 
             // Custom Tab Bar
@@ -129,6 +132,7 @@ struct TabBarButton: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.xs)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
