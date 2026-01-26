@@ -88,21 +88,13 @@ struct TimelineSectionHeader: View {
 struct TimelineEntryRow: View {
     let entry: Entry
 
-    private let moodGradients: [[Color]] = [
-        [Color(red: 0.70, green: 0.78, blue: 0.88), Color(red: 0.60, green: 0.70, blue: 0.82)],
-        [Color(red: 0.75, green: 0.80, blue: 0.90), Color(red: 0.68, green: 0.75, blue: 0.85)],
-        [Color(red: 0.90, green: 0.88, blue: 0.80), Color(red: 0.85, green: 0.82, blue: 0.75)],
-        [Color(red: 0.95, green: 0.88, blue: 0.72), Color(red: 0.90, green: 0.82, blue: 0.65)],
-        [Color(red: 0.98, green: 0.92, blue: 0.70), Color(red: 0.95, green: 0.88, blue: 0.60)]
-    ]
-
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
             // Mood gradient circle
             Circle()
                 .fill(
                     LinearGradient(
-                        colors: moodGradients[entry.mood],
+                        colors: Theme.Colors.moodPillGradients[entry.mood],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -112,7 +104,7 @@ struct TimelineEntryRow: View {
                     AppIconImage(icon: entry.moodAppIcon, isSelected: true, size: 20)
                         .foregroundColor(.white.opacity(0.9))
                 )
-                .shadow(color: moodGradients[entry.mood][0].opacity(0.3), radius: 6, y: 3)
+                .shadow(color: Theme.Colors.moodPillGradients[entry.mood][0].opacity(0.3), radius: 6, y: 3)
 
             // Content
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {

@@ -30,11 +30,12 @@ struct EntryDetailView: View {
             Theme.Colors.background
                 .ignoresSafeArea()
 
-            // Decorative gradient
+            // Decorative gradient (responds to mood)
             GeometryReader { geo in
-                GradientOrb(size: 250, opacity: 0.3, blur: 90)
+                GradientOrb(size: 250, opacity: 0.45, blur: 90, mood: selectedMood)
                     .offset(x: geo.size.width * 0.6, y: -80)
             }
+            .animation(.easeInOut(duration: 0.6), value: selectedMood)
             .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {

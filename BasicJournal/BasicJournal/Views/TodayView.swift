@@ -12,6 +12,11 @@ struct TodayView: View {
     @ObservedObject var viewModel: JournalViewModel
     @State private var animateBackground = false
 
+    // Active mood for gradient orbs - uses saved entry or current selection
+    private var activeMood: Int? {
+        viewModel.todayEntry?.mood ?? viewModel.selectedMood
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -25,27 +30,27 @@ struct TodayView: View {
 
 
 
-                // Decorative gradient orbs
-                // Decorative gradient orbs with breathing animation
+                // Decorative gradient orbs with mood-based colors and breathing animation
                 GeometryReader { geo in
                     // Top right - warm
-                    GradientOrb(size: 350, opacity: 0.35, blur: 90)
+                    GradientOrb(size: 350, opacity: 0.50, blur: 90, mood: activeMood)
                         .offset(x: geo.size.width * 0.5, y: -80)
                         .scaleEffect(animateBackground ? 1.1 : 1.0)
                         .animation(.easeInOut(duration: 8).repeatForever(autoreverses: true), value: animateBackground)
 
                     // Bottom left - cool
-                    GradientOrb(size: 300, opacity: 0.3, blur: 80)
+                    GradientOrb(size: 300, opacity: 0.45, blur: 80, mood: activeMood)
                         .offset(x: -80, y: geo.size.height * 0.55)
                         .scaleEffect(animateBackground ? 1.15 : 1.0)
                         .animation(.easeInOut(duration: 7).repeatForever(autoreverses: true).delay(1), value: animateBackground)
 
                     // Center floating - soft
-                    GradientOrb(size: 200, opacity: 0.2, blur: 60)
+                    GradientOrb(size: 200, opacity: 0.35, blur: 60, mood: activeMood)
                         .offset(x: geo.size.width * 0.2, y: geo.size.height * 0.3)
                         .scaleEffect(animateBackground ? 1.2 : 0.9)
                         .animation(.easeInOut(duration: 10).repeatForever(autoreverses: true).delay(2), value: animateBackground)
                 }
+                .animation(.easeInOut(duration: 0.6), value: activeMood)
                 .onAppear {
                     animateBackground = true
                 }
@@ -71,7 +76,7 @@ struct TodayView: View {
 
                         Spacer(minLength: 120)
                     }
-                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.horizontal, 0)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -401,6 +406,7 @@ struct SimpleSavedStateView: View {
                 viewModel.completeEntry()
             }
             .buttonStyle(PillButtonStyle())
+        
         }
     }
 }
