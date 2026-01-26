@@ -108,17 +108,18 @@ enum Theme {
         static let moodPillGradients: [[Color]] = [
             // Low - Cool light blues
             [
-                Color(red: 0.70, green: 0.80, blue: 0.95),  // Light sky blue
-                Color(red: 0.65, green: 0.75, blue: 0.90),  // Soft blue
-                Color(red: 0.60, green: 0.70, blue: 0.85),  // Muted blue
-                Color(red: 0.55, green: 0.65, blue: 0.80)   // Deeper blue
-            ],
-            // Heavy - Deeper blues
-            [
                 Color(red: 0.50, green: 0.60, blue: 0.80),  // Medium blue
                 Color(red: 0.45, green: 0.55, blue: 0.75),  // Deeper blue
                 Color(red: 0.40, green: 0.50, blue: 0.70),  // Deep blue
                 Color(red: 0.35, green: 0.45, blue: 0.65)   // Rich deep blue
+            ],
+            // Heavy - Deeper blues
+            [
+           
+                Color(red: 0.70, green: 0.80, blue: 0.95),  // Light sky blue
+                Color(red: 0.65, green: 0.75, blue: 0.90),  // Soft blue
+                Color(red: 0.60, green: 0.70, blue: 0.85),  // Muted blue
+                Color(red: 0.55, green: 0.65, blue: 0.80)   // Deeper blue
             ],
             // Okay - Warm cream to soft rose
             [
@@ -172,21 +173,22 @@ enum Theme {
             switch mood {
             case 0: // Low - Cool light blues (calming, soft)
                 colors = [
-                    Color(red: 0.75, green: 0.85, blue: 0.98),   // Very light sky blue
-                    Color(red: 0.70, green: 0.80, blue: 0.95),   // Light sky blue
-                    Color(red: 0.65, green: 0.75, blue: 0.92),   // Soft blue
-                    Color(red: 0.60, green: 0.70, blue: 0.88),   // Muted blue
-                    Color(red: 0.55, green: 0.65, blue: 0.85),   // Deeper blue
-                    Color(red: 0.50, green: 0.60, blue: 0.82)    // Cool blue
-                ]
-            case 1: // Heavy - Deeper blues (contemplative, subdued)
-                colors = [
+                  
                     Color(red: 0.60, green: 0.70, blue: 0.90),   // Medium blue
                     Color(red: 0.55, green: 0.65, blue: 0.85),   // Deeper blue
                     Color(red: 0.50, green: 0.60, blue: 0.80),   // Deep blue
                     Color(red: 0.45, green: 0.55, blue: 0.75),   // Rich blue
                     Color(red: 0.40, green: 0.50, blue: 0.70),   // Deeper rich blue
                     Color(red: 0.35, green: 0.45, blue: 0.65)    // Deep slate blue
+                ]
+            case 1: // Heavy - Deeper blues (contemplative, subdued)
+                colors = [
+                    Color(red: 0.75, green: 0.85, blue: 0.98),   // Very light sky blue
+                    Color(red: 0.70, green: 0.80, blue: 0.95),   // Light sky blue
+                    Color(red: 0.65, green: 0.75, blue: 0.92),   // Soft blue
+                    Color(red: 0.60, green: 0.70, blue: 0.88),   // Muted blue
+                    Color(red: 0.55, green: 0.65, blue: 0.85),   // Deeper blue
+                    Color(red: 0.50, green: 0.60, blue: 0.82)    // Cool blue
                 ]
             case 2: // Okay - Warm cream → soft peach → pale rose → light lavender (balanced, warm)
                 colors = [
@@ -258,30 +260,7 @@ enum Theme {
             switch mood {
             case 0: // Low - Cool light blues
                 return [
-                    // Top row (y=0.0) - transparent anchor
-                    Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
-                    Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
-                    Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
-                    Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
-                    // Row 2 (y=0.5) - subtle cool tint
-                    Color(red: 0.90, green: 0.94, blue: 0.98).opacity(0.4),
-                    Color(red: 0.88, green: 0.92, blue: 0.96).opacity(0.4),
-                    Color(red: 0.89, green: 0.93, blue: 0.97).opacity(0.4),
-                    Color(red: 0.88, green: 0.92, blue: 0.96).opacity(0.4),
-                    // Row 3 (y=0.75) - emerging light blue
-                    Color(red: 0.70, green: 0.80, blue: 0.92).opacity(0.6),
-                    Color(red: 0.68, green: 0.78, blue: 0.90).opacity(0.6),
-                    Color(red: 0.72, green: 0.82, blue: 0.94).opacity(0.6),
-                    Color(red: 0.70, green: 0.80, blue: 0.92).opacity(0.6),
-                    // Row 4 (y=1.0) - soft cool blue
-                    Color(red: 0.55, green: 0.65, blue: 0.82),
-                    Color(red: 0.52, green: 0.62, blue: 0.80),
-                    Color(red: 0.58, green: 0.68, blue: 0.84),
-                    Color(red: 0.55, green: 0.65, blue: 0.82)
-                ]
-
-            case 1: // Heavy - Deeper blues
-                return [
+                  
                     // Top row (y=0.0) - transparent anchor
                     Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
                     Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
@@ -302,6 +281,30 @@ enum Theme {
                     Color(red: 0.38, green: 0.48, blue: 0.68),
                     Color(red: 0.42, green: 0.52, blue: 0.72),
                     Color(red: 0.40, green: 0.50, blue: 0.70)
+                ]
+
+            case 1: // Heavy - Deeper blues
+                return [
+                    // Top row (y=0.0) - transparent anchor
+                    Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
+                    Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
+                    Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
+                    Color(red: 0.98, green: 0.96, blue: 0.94).opacity(0.0),
+                    // Row 2 (y=0.5) - subtle cool tint
+                    Color(red: 0.90, green: 0.94, blue: 0.98).opacity(0.4),
+                    Color(red: 0.88, green: 0.92, blue: 0.96).opacity(0.4),
+                    Color(red: 0.89, green: 0.93, blue: 0.97).opacity(0.4),
+                    Color(red: 0.88, green: 0.92, blue: 0.96).opacity(0.4),
+                    // Row 3 (y=0.75) - emerging light blue
+                    Color(red: 0.70, green: 0.80, blue: 0.92).opacity(0.6),
+                    Color(red: 0.68, green: 0.78, blue: 0.90).opacity(0.6),
+                    Color(red: 0.72, green: 0.82, blue: 0.94).opacity(0.6),
+                    Color(red: 0.70, green: 0.80, blue: 0.92).opacity(0.6),
+                    // Row 4 (y=1.0) - soft cool blue
+                    Color(red: 0.55, green: 0.65, blue: 0.82),
+                    Color(red: 0.52, green: 0.62, blue: 0.80),
+                    Color(red: 0.58, green: 0.68, blue: 0.84),
+                    Color(red: 0.55, green: 0.65, blue: 0.82)
                 ]
 
             case 2: // Okay - Warm cream to soft rose
@@ -397,19 +400,20 @@ enum Theme {
             switch mood {
             case 0: // Low - Cool light blues (center → edge)
                 return [
-                    Color(red: 0.80, green: 0.88, blue: 0.98),  // Very light sky blue (center)
-                    Color(red: 0.72, green: 0.82, blue: 0.95),  // Light blue
-                    Color(red: 0.65, green: 0.75, blue: 0.92),  // Soft blue
-                    Color(red: 0.58, green: 0.68, blue: 0.88),  // Muted blue
-                    Color(red: 0.52, green: 0.62, blue: 0.82)   // Cool blue (edge)
-                ]
-            case 1: // Heavy - Deeper blues (center → edge)
-                return [
+                    
                     Color(red: 0.68, green: 0.78, blue: 0.92),  // Medium light blue (center)
                     Color(red: 0.58, green: 0.68, blue: 0.88),  // Soft deep blue
                     Color(red: 0.50, green: 0.60, blue: 0.82),  // Deeper blue
                     Color(red: 0.42, green: 0.52, blue: 0.75),  // Rich deep blue
                     Color(red: 0.35, green: 0.45, blue: 0.68)   // Deep slate blue (edge)
+                ]
+            case 1: // Heavy - Deeper blues (center → edge)
+                return [
+                    Color(red: 0.80, green: 0.88, blue: 0.98),  // Very light sky blue (center)
+                    Color(red: 0.72, green: 0.82, blue: 0.95),  // Light blue
+                    Color(red: 0.65, green: 0.75, blue: 0.92),  // Soft blue
+                    Color(red: 0.58, green: 0.68, blue: 0.88),  // Muted blue
+                    Color(red: 0.52, green: 0.62, blue: 0.82)   // Cool blue (edge)
                 ]
             case 2: // Okay - Warm cream → soft peach → pale rose → light lavender
                 return [
