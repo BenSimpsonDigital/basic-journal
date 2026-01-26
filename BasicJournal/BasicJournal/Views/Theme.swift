@@ -95,26 +95,23 @@ enum Theme {
         static let accent = Color("AccentPrimary")
         static let accentSoft = Color("AccentSoft")
 
-        // Mood gradient colors - enhanced saturation for better visibility
+        // Mood gradient colors - soft pastels (legacy, unused)
         static let moodColors: [Color] = [
-            Color(red: 0.65, green: 0.75, blue: 0.92), // Cool blue (Low)
-            Color(red: 0.72, green: 0.80, blue: 0.95), // Periwinkle (Down)
-            Color(red: 0.92, green: 0.88, blue: 0.70), // Warm cream (Okay)
-            Color(red: 0.95, green: 0.82, blue: 0.55), // Golden (Good)
-            Color(red: 0.98, green: 0.88, blue: 0.45)  // Bright yellow (Great)
+            Color(red: 0.75, green: 0.82, blue: 0.88), // Soft blue-gray (Low)
+            Color(red: 0.80, green: 0.85, blue: 0.92), // Soft periwinkle (Down)
+            Color(red: 0.90, green: 0.88, blue: 0.82), // Soft cream (Okay)
+            Color(red: 0.92, green: 0.88, blue: 0.78), // Soft gold (Good)
+            Color(red: 0.95, green: 0.90, blue: 0.75)  // Warm yellow (Great)
         ]
 
         // Enhanced mood pill gradients - more saturated for visual impact
-        static func moodPillGradientColors(for index: Int) -> [Color] {
-            switch index {
-            case 0: return [Color(red: 0.60, green: 0.72, blue: 0.92), Color(red: 0.50, green: 0.65, blue: 0.85)]
-            case 1: return [Color(red: 0.68, green: 0.75, blue: 0.95), Color(red: 0.60, green: 0.68, blue: 0.88)]
-            case 2: return [Color(red: 0.95, green: 0.88, blue: 0.65), Color(red: 0.88, green: 0.82, blue: 0.55)]
-            case 3: return [Color(red: 0.98, green: 0.85, blue: 0.50), Color(red: 0.92, green: 0.75, blue: 0.40)]
-            case 4: return [Color(red: 1.00, green: 0.90, blue: 0.40), Color(red: 0.95, green: 0.80, blue: 0.30)]
-            default: return [.gray, .gray]
-            }
-        }
+        static let moodPillGradients: [[Color]] = [
+            [Color(red: 0.55, green: 0.68, blue: 0.92), Color(red: 0.45, green: 0.58, blue: 0.85)], // Low - Cool blue
+            [Color(red: 0.65, green: 0.70, blue: 0.95), Color(red: 0.55, green: 0.62, blue: 0.88)], // Down - Periwinkle
+            [Color(red: 0.95, green: 0.88, blue: 0.65), Color(red: 0.90, green: 0.82, blue: 0.58)], // Okay - Warm cream
+            [Color(red: 0.98, green: 0.85, blue: 0.50), Color(red: 0.95, green: 0.78, blue: 0.42)], // Good - Gold
+            [Color(red: 1.0, green: 0.90, blue: 0.40), Color(red: 0.98, green: 0.85, blue: 0.32)]   // Great - Vibrant yellow
+        ]
 
         // Gradient orb colors
         static let orbGradient1 = LinearGradient(
@@ -143,35 +140,35 @@ enum Theme {
 
             let colors: [Color]
             switch mood {
-            case 0: // Low - Cool blue tones (enhanced)
+            case 0: // Low - Richer cool blue
                 colors = [
-                    Color(red: 0.60, green: 0.72, blue: 0.92),
-                    Color(red: 0.55, green: 0.68, blue: 0.88),
-                    Color(red: 0.50, green: 0.65, blue: 0.85)
+                    Color(red: 0.55, green: 0.68, blue: 0.92),
+                    Color(red: 0.50, green: 0.65, blue: 0.90),
+                    Color(red: 0.45, green: 0.60, blue: 0.88)
                 ]
-            case 1: // Down - Periwinkle (enhanced)
+            case 1: // Down - Deeper periwinkle
                 colors = [
-                    Color(red: 0.68, green: 0.75, blue: 0.95),
-                    Color(red: 0.65, green: 0.72, blue: 0.92),
-                    Color(red: 0.60, green: 0.68, blue: 0.88)
+                    Color(red: 0.65, green: 0.70, blue: 0.95),
+                    Color(red: 0.60, green: 0.68, blue: 0.92),
+                    Color(red: 0.55, green: 0.65, blue: 0.90)
                 ]
-            case 2: // Okay - Warm cream (enhanced)
+            case 2: // Okay - Warmer cream/gold
                 colors = [
-                    Color(red: 0.95, green: 0.88, blue: 0.65),
-                    Color(red: 0.92, green: 0.85, blue: 0.60),
-                    Color(red: 0.88, green: 0.82, blue: 0.55)
+                    Color(red: 0.95, green: 0.90, blue: 0.70),
+                    Color(red: 0.92, green: 0.86, blue: 0.65),
+                    Color(red: 0.88, green: 0.82, blue: 0.60)
                 ]
-            case 3: // Good - Rich gold (enhanced)
+            case 3: // Good - Saturated gold
                 colors = [
                     Color(red: 0.98, green: 0.85, blue: 0.50),
                     Color(red: 0.95, green: 0.80, blue: 0.45),
                     Color(red: 0.92, green: 0.75, blue: 0.40)
                 ]
-            case 4: // Great - Vibrant yellow (enhanced)
+            case 4: // Great - Vibrant warm yellow
                 colors = [
-                    Color(red: 1.00, green: 0.90, blue: 0.40),
+                    Color(red: 1.0, green: 0.90, blue: 0.40),
                     Color(red: 0.98, green: 0.85, blue: 0.35),
-                    Color(red: 0.95, green: 0.80, blue: 0.30)
+                    Color(red: 0.96, green: 0.80, blue: 0.30)
                 ]
             default:
                 return orbGradient1
@@ -277,15 +274,18 @@ struct GradientOrb: View {
 struct AnimatedGradientOrb: View {
     @State private var animate = false
     var size: CGFloat = 180
-    var mood: Int? = nil  // Now accepts mood parameter
 
     var body: some View {
         ZStack {
-            // Inner orb - uses mood-based colors
+            // Inner orb
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: moodColors,
+                        colors: [
+                            Color(red: 0.95, green: 0.92, blue: 0.70),
+                            Color(red: 0.80, green: 0.88, blue: 0.80),
+                            Color(red: 0.70, green: 0.82, blue: 0.90)
+                        ],
                         center: .center,
                         startRadius: 0,
                         endRadius: size * 0.5
@@ -299,7 +299,7 @@ struct AnimatedGradientOrb: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            moodColors[0].opacity(0.5),
+                            Color(red: 0.92, green: 0.90, blue: 0.75).opacity(0.5),
                             Color.clear
                         ],
                         center: .center,
@@ -316,57 +316,6 @@ struct AnimatedGradientOrb: View {
             withAnimation(.easeInOut(duration: 6).repeatForever(autoreverses: true)) {
                 animate = true
             }
-        }
-    }
-    
-    // Get mood-based colors using same logic as moodBasedOrbGradient
-    private var moodColors: [Color] {
-        guard let mood = mood else {
-            // Default gradient if no mood selected
-            return [
-                Color(red: 0.95, green: 0.92, blue: 0.70),
-                Color(red: 0.80, green: 0.88, blue: 0.80),
-                Color(red: 0.70, green: 0.82, blue: 0.90)
-            ]
-        }
-        
-        switch mood {
-        case 0: // Low - Cool blue
-            return [
-                Color(red: 0.60, green: 0.72, blue: 0.92),
-                Color(red: 0.55, green: 0.68, blue: 0.88),
-                Color(red: 0.50, green: 0.65, blue: 0.85)
-            ]
-        case 1: // Down - Periwinkle
-            return [
-                Color(red: 0.68, green: 0.75, blue: 0.95),
-                Color(red: 0.65, green: 0.72, blue: 0.92),
-                Color(red: 0.60, green: 0.68, blue: 0.88)
-            ]
-        case 2: // Okay - Warm cream
-            return [
-                Color(red: 0.95, green: 0.88, blue: 0.65),
-                Color(red: 0.92, green: 0.85, blue: 0.60),
-                Color(red: 0.88, green: 0.82, blue: 0.55)
-            ]
-        case 3: // Good - Rich gold
-            return [
-                Color(red: 0.98, green: 0.85, blue: 0.50),
-                Color(red: 0.95, green: 0.80, blue: 0.45),
-                Color(red: 0.92, green: 0.75, blue: 0.40)
-            ]
-        case 4: // Great - Vibrant yellow
-            return [
-                Color(red: 1.00, green: 0.90, blue: 0.40),
-                Color(red: 0.98, green: 0.85, blue: 0.35),
-                Color(red: 0.95, green: 0.80, blue: 0.30)
-            ]
-        default:
-            return [
-                Color(red: 0.95, green: 0.92, blue: 0.70),
-                Color(red: 0.80, green: 0.88, blue: 0.80),
-                Color(red: 0.70, green: 0.82, blue: 0.90)
-            ]
         }
     }
 }
