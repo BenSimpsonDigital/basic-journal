@@ -234,7 +234,7 @@ struct RecordPromptStepView: View {
                     .frame(height: Theme.Spacing.xl)
 
                 // Gradient orb decoration
-                AnimatedGradientOrb(size: 160)
+                AnimatedGradientOrb(size: 160, mood: viewModel.selectedMood)
                     .padding(.vertical, Theme.Spacing.lg)
 
                 Spacer()
@@ -468,6 +468,7 @@ struct TodayEntryCardView: View {
                     }
                 }
             }
+            .padding(.horizontal, Theme.Spacing.lg)
         }
     }
 }

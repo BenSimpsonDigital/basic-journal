@@ -180,6 +180,57 @@ enum Theme {
                 endPoint: .bottomTrailing
             )
         }
+
+        // Mood-based radial orb colors for AnimatedGradientOrb (center → middle → edge)
+        static func moodBasedRadialOrbColors(for mood: Int?) -> [Color] {
+            guard let mood = mood else {
+                // Default: warm cream → pale mint → soft blue
+                return [
+                    Color(red: 0.95, green: 0.92, blue: 0.70),
+                    Color(red: 0.80, green: 0.88, blue: 0.80),
+                    Color(red: 0.70, green: 0.82, blue: 0.90)
+                ]
+            }
+
+            switch mood {
+            case 0: // Low - Light sky blue → muted blue → deeper blue
+                return [
+                    Color(red: 0.70, green: 0.82, blue: 0.95),
+                    Color(red: 0.55, green: 0.70, blue: 0.90),
+                    Color(red: 0.45, green: 0.60, blue: 0.85)
+                ]
+            case 1: // Down - Soft lavender → periwinkle → muted violet
+                return [
+                    Color(red: 0.78, green: 0.75, blue: 0.95),
+                    Color(red: 0.68, green: 0.68, blue: 0.90),
+                    Color(red: 0.58, green: 0.60, blue: 0.85)
+                ]
+            case 2: // Okay - Warm cream → soft gold → muted amber
+                return [
+                    Color(red: 0.95, green: 0.90, blue: 0.72),
+                    Color(red: 0.92, green: 0.85, blue: 0.62),
+                    Color(red: 0.88, green: 0.78, blue: 0.55)
+                ]
+            case 3: // Good - Bright gold → warm amber → soft orange
+                return [
+                    Color(red: 0.98, green: 0.88, blue: 0.55),
+                    Color(red: 0.96, green: 0.80, blue: 0.45),
+                    Color(red: 0.92, green: 0.72, blue: 0.40)
+                ]
+            case 4: // Great - Vibrant yellow → warm gold → soft coral
+                return [
+                    Color(red: 1.0, green: 0.92, blue: 0.50),
+                    Color(red: 0.98, green: 0.85, blue: 0.42),
+                    Color(red: 0.95, green: 0.75, blue: 0.45)
+                ]
+            default:
+                return [
+                    Color(red: 0.95, green: 0.92, blue: 0.70),
+                    Color(red: 0.80, green: 0.88, blue: 0.80),
+                    Color(red: 0.70, green: 0.82, blue: 0.90)
+                ]
+            }
+        }
     }
 
     // MARK: - Typography
@@ -274,32 +325,34 @@ struct GradientOrb: View {
 struct AnimatedGradientOrb: View {
     @State private var animate = false
     var size: CGFloat = 180
+    var mood: Int? = nil
+
+    private var orbColors: [Color] {
+        Theme.Colors.moodBasedRadialOrbColors(for: mood)
+    }
 
     var body: some View {
         ZStack {
-            // Inner orb
+            // Inner orb with subtle breathing
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [
-                            Color(red: 0.95, green: 0.92, blue: 0.70),
-                            Color(red: 0.80, green: 0.88, blue: 0.80),
-                            Color(red: 0.70, green: 0.82, blue: 0.90)
-                        ],
+                        colors: orbColors,
                         center: .center,
                         startRadius: 0,
                         endRadius: size * 0.5
                     )
                 )
                 .frame(width: size, height: size)
-                .blur(radius: 20)
+                .blur(radius: animate ? 30 : 18)
+                .scaleEffect(animate ? 1.05 : 0.9)
 
             // Animated outer glow
             Circle()
                 .fill(
                     RadialGradient(
                         colors: [
-                            Color(red: 0.92, green: 0.90, blue: 0.75).opacity(0.5),
+                            orbColors.first?.opacity(0.5) ?? Color.clear,
                             Color.clear
                         ],
                         center: .center,
@@ -308,12 +361,12 @@ struct AnimatedGradientOrb: View {
                     )
                 )
                 .frame(width: size * 1.4, height: size * 1.4)
-                .scaleEffect(animate ? 1.1 : 1.0)
-                .opacity(animate ? 0.4 : 0.6)
+                .scaleEffect(animate ? 1.05 : 0.95)
+                .opacity(animate ? 0.5 : 0.8)
         }
         .onAppear {
-            // Slower, more organic breathing animation
-            withAnimation(.easeInOut(duration: 6).repeatForever(autoreverses: true)) {
+            // Slower, organic breathing animation
+            withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
                 animate = true
             }
         }
