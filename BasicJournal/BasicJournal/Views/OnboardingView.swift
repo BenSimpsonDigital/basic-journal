@@ -111,19 +111,37 @@ struct OnboardingPageView: View {
                     .padding(.bottom, Theme.Spacing.lg)
             } else if showMoodSelector {
                 // Preview mood selector
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: Theme.Spacing.md) {
-                        ForEach(0..<5) { index in
-                            MoodPill(
-                                index: index,
-                                isSelected: selectedMoodPreview == index,
-                                action: { selectedMoodPreview = index }
-                            )
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: Theme.Spacing.md) {
+                            ForEach(0..<5) { index in
+                                MoodPill(
+                                    index: index,
+                                    isSelected: selectedMoodPreview == index,
+                                    action: {
+                                        selectedMoodPreview = index
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                            proxy.scrollTo(index, anchor: .center)
+                                        }
+                                    }
+                                )
+                                .id(index)
+                            }
+                        }
+                        .padding(.horizontal, Theme.Spacing.lg)
+                        .padding(.vertical, 24) // Add vertical breathing room for scale/shadow
+                    }
+                    .padding(.bottom, Theme.Spacing.sm)
+                    .onAppear {
+                        if let selected = selectedMoodPreview {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                                    proxy.scrollTo(selected, anchor: .center)
+                                }
+                            }
                         }
                     }
-                    .padding(.horizontal, Theme.Spacing.lg)
                 }
-                .padding(.bottom, Theme.Spacing.md)
             }
 
             // Title - elegant serif
@@ -132,6 +150,7 @@ struct OnboardingPageView: View {
                 .foregroundColor(Theme.Colors.textPrimary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
+                .padding(.horizontal, Theme.Spacing.lg)
 
             // Subtitle
             Text(subtitle)
@@ -141,7 +160,7 @@ struct OnboardingPageView: View {
                 .lineSpacing(4)
                 .padding(.horizontal, Theme.Spacing.lg)
         }
-        .padding(.horizontal, Theme.Spacing.lg)
+        // Container padding removed to allow scrollview to hit edges
     }
 }
 

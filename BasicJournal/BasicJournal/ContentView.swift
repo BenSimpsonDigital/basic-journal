@@ -29,6 +29,12 @@ struct MainTabView: View {
     @ObservedObject var viewModel: JournalViewModel
     @Binding var selectedTab: Int
 
+    init(viewModel: JournalViewModel, selectedTab: Binding<Int>) {
+        self.viewModel = viewModel
+        self._selectedTab = selectedTab
+        UITabBar.appearance().isHidden = true
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             // Content
@@ -47,7 +53,8 @@ struct MainTabView: View {
             }
 
             // Custom Tab Bar
-            CustomTabBar(selectedTab: $selectedTab)
+            // Custom Liquid Glass Tab Bar
+            LiquidGlassTabBar(selectedTab: $selectedTab)
         }
         .ignoresSafeArea(.keyboard)
     }
@@ -55,7 +62,7 @@ struct MainTabView: View {
 
 // MARK: - Custom Tab Bar
 
-struct CustomTabBar: View {
+struct LiquidGlassTabBar: View {
     @Binding var selectedTab: Int
 
     private let tabs: [(icon: AppIcon, label: String)] = [
@@ -80,17 +87,25 @@ struct CustomTabBar: View {
             }
         }
         .padding(.horizontal, Theme.Spacing.md)
-        .padding(.top, Theme.Spacing.sm)
-        .padding(.bottom, Theme.Spacing.md)
+        .padding(.vertical, 12)
         .background(
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    Rectangle()
-                        .fill(Theme.Colors.card.opacity(0.8))
-                )
-                .shadow(color: .black.opacity(0.05), radius: 8, y: -2)
+            ZStack {
+                // Blur base
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                
+                // White glass tint
+                Capsule()
+                    .fill(Color.white.opacity(0.3))
+                
+                // Subtle border/shine
+                Capsule()
+                    .stroke(Color.white.opacity(0.5), lineWidth: 1)
+            }
+            .shadow(color: .black.opacity(0.1), radius: 15, y: 5)
         )
+        .padding(.horizontal, Theme.Spacing.xxl) // Float in from sides
+        .padding(.bottom, Theme.Spacing.md) // Float up from bottom
     }
 }
 
