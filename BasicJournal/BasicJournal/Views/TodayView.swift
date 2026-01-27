@@ -25,36 +25,38 @@ struct TodayView: View {
                 Theme.Colors.background
                     .ignoresSafeArea()
 
-                // Decorative background gradient - bottom-aligned mesh on iOS 18+
-                if #available(iOS 18.0, *) {
-                    BottomMeshGradient(mood: activeMood, animationState: meshAnimationState)
-                        .animation(.easeInOut(duration: 0.8), value: activeMood)
-                } else {
-                    // Fallback to orbs for iOS 17
-                    GeometryReader { geo in
-                        // Top right - warm
-                        GradientOrb(size: 350, opacity: 0.50, blur: 90, mood: activeMood)
-                            .offset(x: geo.size.width * 0.5, y: -80)
-                            .scaleEffect(animateBackground ? 1.15 : 1.0)  // Enhanced from 1.1
-                            .animation(.easeInOut(duration: 8).repeatForever(autoreverses: true), value: animateBackground)
+                // Decorative background gradient - hidden during starting prompt for minimal focus
+                if viewModel.flowState != .startingPrompt {
+                    if #available(iOS 18.0, *) {
+                        BottomMeshGradient(mood: activeMood, animationState: meshAnimationState)
+                            .animation(.easeInOut(duration: 0.8), value: activeMood)
+                    } else {
+                        // Fallback to orbs for iOS 17
+                        GeometryReader { geo in
+                            // Top right - warm
+                            GradientOrb(size: 350, opacity: 0.50, blur: 90, mood: activeMood)
+                                .offset(x: geo.size.width * 0.5, y: -80)
+                                .scaleEffect(animateBackground ? 1.15 : 1.0)  // Enhanced from 1.1
+                                .animation(.easeInOut(duration: 8).repeatForever(autoreverses: true), value: animateBackground)
 
-                        // Bottom left - cool
-                        GradientOrb(size: 300, opacity: 0.45, blur: 80, mood: activeMood)
-                            .offset(x: -80, y: geo.size.height * 0.55)
-                            .scaleEffect(animateBackground ? 1.20 : 1.0)  // Enhanced from 1.15
-                            .animation(.easeInOut(duration: 7).repeatForever(autoreverses: true).delay(1), value: animateBackground)
+                            // Bottom left - cool
+                            GradientOrb(size: 300, opacity: 0.45, blur: 80, mood: activeMood)
+                                .offset(x: -80, y: geo.size.height * 0.55)
+                                .scaleEffect(animateBackground ? 1.20 : 1.0)  // Enhanced from 1.15
+                                .animation(.easeInOut(duration: 7).repeatForever(autoreverses: true).delay(1), value: animateBackground)
 
-                        // Center floating - soft
-                        GradientOrb(size: 200, opacity: 0.35, blur: 60, mood: activeMood)
-                            .offset(x: geo.size.width * 0.2, y: geo.size.height * 0.3)
-                            .scaleEffect(animateBackground ? 1.25 : 0.85)  // Enhanced from 1.2:0.9
-                            .animation(.easeInOut(duration: 10).repeatForever(autoreverses: true).delay(2), value: animateBackground)
+                            // Center floating - soft
+                            GradientOrb(size: 200, opacity: 0.35, blur: 60, mood: activeMood)
+                                .offset(x: geo.size.width * 0.2, y: geo.size.height * 0.3)
+                                .scaleEffect(animateBackground ? 1.25 : 0.85)  // Enhanced from 1.2:0.9
+                                .animation(.easeInOut(duration: 10).repeatForever(autoreverses: true).delay(2), value: animateBackground)
+                        }
+                        .animation(.easeInOut(duration: 0.6), value: activeMood)
+                        .onAppear {
+                            animateBackground = true
+                        }
+                        .ignoresSafeArea()
                     }
-                    .animation(.easeInOut(duration: 0.6), value: activeMood)
-                    .onAppear {
-                        animateBackground = true
-                    }
-                    .ignoresSafeArea()
                 }
 
                 ScrollView(showsIndicators: false) {
@@ -107,6 +109,13 @@ struct TodayRecordingView: View {
     var body: some View {
         ZStack {
             switch viewModel.flowState {
+            case .startingPrompt:
+                StartingPromptView(viewModel: viewModel)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .bottom).combined(with: .opacity),
+                        removal: .move(edge: .bottom).combined(with: .opacity)
+                    ))
+
             case .selectMood:
                 MoodSelectionStepView(viewModel: viewModel)
                     .transition(.asymmetric(
@@ -135,6 +144,8 @@ struct TodayRecordingView: View {
             // Update mesh animation state based on flow state
             if #available(iOS 18.0, *) {
                 switch newState {
+                case .startingPrompt:
+                    meshAnimationState = .subtle
                 case .recording:
                     meshAnimationState = .calm
                 case .selectMood, .recordPrompt, .saved:
@@ -150,6 +161,64 @@ struct TodayRecordingView: View {
                     meshAnimationState = .subtle
                 }
             }
+        }
+    }
+}
+
+// MARK: - Starting Prompt View
+
+struct StartingPromptView: View {
+    @ObservedObject var viewModel: JournalViewModel
+    @State private var hasAppeared = false
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.xl) {
+            Spacer()
+
+            // Main prompt
+            VStack(spacing: Theme.Spacing.lg) {
+                Text("Let's record")
+                    .font(Theme.Typography.displayLarge())
+                    .foregroundColor(Theme.Colors.textPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text("how you're feeling")
+                    .font(Theme.Typography.displayLarge())
+                    .foregroundColor(Theme.Colors.textPrimary)
+                    .multilineTextAlignment(.center)
+            }
+            .lineSpacing(4)
+            .scaleEffect(hasAppeared ? 1.0 : 0.9)
+            .opacity(hasAppeared ? 1.0 : 0)
+            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: hasAppeared)
+
+            Spacer()
+
+            // Action buttons
+            VStack(spacing: Theme.Spacing.md) {
+                // Primary action
+                Button("Let's record") {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        viewModel.beginJournalingFromPrompt()
+                    }
+                }
+                .buttonStyle(PillButtonStyle())
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+
+                // Secondary action
+                Button("Not right now") {
+                    viewModel.dismissStartingPrompt()
+                }
+                .font(Theme.Typography.body())
+                .foregroundColor(Theme.Colors.textSecondary)
+                .padding(.vertical, Theme.Spacing.sm)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, Theme.Spacing.lg)
+        .onAppear {
+            hasAppeared = true
         }
     }
 }
@@ -564,5 +633,13 @@ struct AudioPlaybackView: View {
 #Preview("Today - With Entry") {
     let vm = JournalViewModel()
     vm.hasCompletedOnboarding = true
+    return TodayView(viewModel: vm)
+}
+
+#Preview("Today - Starting Prompt") {
+    let vm = JournalViewModel()
+    vm.hasCompletedOnboarding = true
+    vm.entries.removeAll { $0.isToday }
+    vm.flowState = .startingPrompt
     return TodayView(viewModel: vm)
 }

@@ -10,8 +10,9 @@ import Foundation
 import SwiftUI
 import Combine
 
-/// Flow state for the two-step journal entry process
+/// Flow state for the journal entry process
 enum JournalFlowState: Equatable {
+    case startingPrompt  // Initial prompt before mood selection
     case selectMood      // Step 1: Mood selection
     case recordPrompt    // Step 2: Ready to record with prompt
     case recording       // Recording in progress
@@ -46,6 +47,12 @@ class JournalViewModel: ObservableObject {
     /// Search query text
     @Published var searchQuery: String = ""
 
+    /// Whether user has seen starting prompt today
+    @Published var hasSeenStartingPromptToday: Bool = false
+
+    /// Trigger for timeline navigation (when user dismisses starting prompt)
+    @Published var shouldNavigateToTimeline: Bool = false
+
     /// Settings: Daily reminder enabled
     @Published var reminderEnabled: Bool = true
 
@@ -60,7 +67,13 @@ class JournalViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private var recordingTimer: Timer?
-    
+
+    /// Last date user saw the starting prompt (for daily reset)
+    private var lastPromptDate: Date {
+        get { UserDefaults.standard.object(forKey: "lastStartingPromptDate") as? Date ?? Date.distantPast }
+        set { UserDefaults.standard.set(newValue, forKey: "lastStartingPromptDate") }
+    }
+
     private let prompts: [String] = [
         "What stood out about today?",
         "Did anything surprise you today?",
@@ -79,6 +92,15 @@ class JournalViewModel: ObservableObject {
     init() {
         // Load mock data
         self.entries = Entry.generateMockEntries()
+
+        // Load persisted starting prompt state
+        self.hasSeenStartingPromptToday = UserDefaults.standard.bool(forKey: "hasSeenStartingPromptToday")
+        checkAndResetDailyPrompt()
+
+        // Set initial flow state based on whether starting prompt should show
+        if shouldShowStartingPrompt() {
+            flowState = .startingPrompt
+        }
     }
 
     // MARK: - Computed Properties
@@ -211,6 +233,44 @@ class JournalViewModel: ObservableObject {
     func completeOnboarding() {
         // TODO: In production, persist this to UserDefaults
         hasCompletedOnboarding = true
+    }
+
+    // MARK: - Starting Prompt
+
+    /// Check if starting prompt should be shown
+    func shouldShowStartingPrompt() -> Bool {
+        todayEntry == nil && !hasSeenStartingPromptToday
+    }
+
+    /// Dismiss starting prompt and navigate to timeline
+    func dismissStartingPrompt() {
+        hasSeenStartingPromptToday = true
+        shouldNavigateToTimeline = true
+        persistStartingPromptState()
+    }
+
+    /// Begin journaling from starting prompt (transition to mood selection)
+    func beginJournalingFromPrompt() {
+        hasSeenStartingPromptToday = true
+        persistStartingPromptState()
+        flowState = .selectMood
+    }
+
+    /// Check and reset daily prompt state if a new day has started
+    func checkAndResetDailyPrompt() {
+        let today = Calendar.current.startOfDay(for: Date())
+        let lastDate = Calendar.current.startOfDay(for: lastPromptDate)
+
+        if today > lastDate {
+            hasSeenStartingPromptToday = false
+            lastPromptDate = today
+            UserDefaults.standard.set(false, forKey: "hasSeenStartingPromptToday")
+        }
+    }
+
+    /// Persist the starting prompt state to UserDefaults
+    private func persistStartingPromptState() {
+        UserDefaults.standard.set(hasSeenStartingPromptToday, forKey: "hasSeenStartingPromptToday")
     }
 
     // MARK: - Helpers

@@ -192,6 +192,7 @@ class JournalViewModelTests: XCTestCase {
 
 ## Notes for AI Agents
 - **Key Context**: This is a prototype/frontend-only app
+- **UI/UX Playbook**: Follow `PROJECT_PLAYBOOK.md` for layout/hierarchy rules and UI consistency
 - Focus on UI/UX excellence and modern SwiftUI practices
 - Maintain the liquid glass design aesthetic and mood system
 - **Common Tasks**: Follow MVVM pattern, use Theme.swift tokens

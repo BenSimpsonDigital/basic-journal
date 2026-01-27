@@ -28,6 +28,7 @@ struct ContentView: View {
 struct MainTabView: View {
     @ObservedObject var viewModel: JournalViewModel
     @Binding var selectedTab: Int
+    @Environment(\.scenePhase) private var scenePhase
 
     init(viewModel: JournalViewModel, selectedTab: Binding<Int>) {
         self.viewModel = viewModel
@@ -60,6 +61,30 @@ struct MainTabView: View {
             LiquidGlassTabBar(selectedTab: $selectedTab)
         }
         .ignoresSafeArea(.keyboard)
+        // Navigate to Timeline when user dismisses starting prompt
+        .onChange(of: viewModel.shouldNavigateToTimeline) { _, shouldNavigate in
+            if shouldNavigate {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    selectedTab = 1 // Timeline tab
+                }
+                viewModel.shouldNavigateToTimeline = false
+            }
+        }
+        // Reset to mood selection when returning to Today tab after dismissing starting prompt
+        .onChange(of: selectedTab) { _, newTab in
+            if newTab == 0 && viewModel.hasSeenStartingPromptToday && viewModel.todayEntry == nil {
+                viewModel.flowState = .selectMood
+            }
+        }
+        // Check for daily reset when app becomes active (handles midnight crossing)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                viewModel.checkAndResetDailyPrompt()
+                if viewModel.shouldShowStartingPrompt() && selectedTab == 0 {
+                    viewModel.flowState = .startingPrompt
+                }
+            }
+        }
     }
 }
 
