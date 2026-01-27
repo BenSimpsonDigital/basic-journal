@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import AVFoundation
 
 /// Flow state for the journal entry process
 enum JournalFlowState: Equatable {
@@ -32,6 +33,11 @@ class JournalViewModel: ObservableObject {
     /// Whether user has completed onboarding
     @Published var hasCompletedOnboarding: Bool = false
 
+    /// User's display name (set during onboarding, editable in settings)
+    @Published var userName: String = "" {
+        didSet { UserDefaults.standard.set(userName, forKey: "userName") }
+    }
+
     /// Current flow state for Today screen (two-step journal entry)
     @Published var flowState: JournalFlowState = .selectMood
 
@@ -44,7 +50,7 @@ class JournalViewModel: ObservableObject {
     /// Target date for the new entry (for creating past entries from calendar)
     @Published var pendingEntryDate: Date = Date()
 
-    /// Current random prompt text
+    /// Current daily prompt text (cached per calendar day)
     @Published var dailyPrompt: String = "What stood out about today?"
 
     /// Search query text
@@ -67,9 +73,16 @@ class JournalViewModel: ObservableObject {
         return Calendar.current.date(from: components) ?? Date()
     }()
 
+    // MARK: - Services
+
+    let audioService = AudioRecordingService()
+    let transcriptionService = TranscriptionService()
+
     // MARK: - Private Properties
 
     private var recordingTimer: Timer?
+    private var pendingEntryID: UUID?
+    private var cancellables = Set<AnyCancellable>()
 
     /// Last date user saw the starting prompt (for daily reset)
     private var lastPromptDate: Date {
@@ -96,9 +109,15 @@ class JournalViewModel: ObservableObject {
         // Load mock data
         self.entries = Entry.generateMockEntries()
 
+        // Load persisted user name
+        self.userName = UserDefaults.standard.string(forKey: "userName") ?? ""
+
         // Load persisted starting prompt state
         self.hasSeenStartingPromptToday = UserDefaults.standard.bool(forKey: "hasSeenStartingPromptToday")
         checkAndResetDailyPrompt()
+
+        // Load or generate cached daily prompt
+        loadDailyPrompt()
 
         // Set initial flow state based on whether starting prompt should show
         if shouldShowStartingPrompt() {
@@ -140,44 +159,109 @@ class JournalViewModel: ObservableObject {
 
     // MARK: - Recording Actions
 
-    /// Start a fake recording session
+    /// Start recording audio
     func startRecording() {
-        flowState = .recording
-        recordingSeconds = 0
+        let entryID = UUID()
+        pendingEntryID = entryID
 
-        // TODO: In production, request microphone permission and start AVAudioRecorder
-        // TODO: Start speech-to-text transcription
-
-        // Start timer for visual feedback
-        recordingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.recordingSeconds += 1
+        // Check microphone permission first
+        switch audioService.permissionStatus {
+        case .granted:
+            beginRecording(entryID: entryID)
+        case .undetermined:
+            Task {
+                let granted = await audioService.requestPermission()
+                if granted {
+                    beginRecording(entryID: entryID)
+                }
+                // If denied, the view should handle showing the denied state
             }
+        case .denied:
+            // View layer handles showing settings prompt
+            break
+        @unknown default:
+            break
         }
     }
 
-    /// Stop the fake recording session
+    /// Actually begin the recording session after permission is confirmed
+    private func beginRecording(entryID: UUID) {
+        do {
+            try audioService.startRecording(entryID: entryID)
+            flowState = .recording
+            recordingSeconds = 0
+
+            // Start timer for visual feedback
+            recordingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+                Task { @MainActor in
+                    self?.recordingSeconds += 1
+                }
+            }
+
+            // Observe audio service stopping (e.g. backgrounding)
+            audioService.$isRecording
+                .dropFirst()
+                .filter { !$0 }
+                .first()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    self?.handleRecordingStopped()
+                }
+                .store(in: &cancellables)
+        } catch {
+            // Recording failed to start — stay on prompt screen
+            flowState = .recordPrompt
+        }
+    }
+
+    /// Stop recording and save the entry
     func stopRecording() {
         recordingTimer?.invalidate()
         recordingTimer = nil
+
+        let audioURL = audioService.stopRecording()
+        saveEntry(audioURL: audioURL)
+    }
+
+    /// Handle recording stopped externally (e.g. by backgrounding)
+    private func handleRecordingStopped() {
+        guard flowState == .recording else { return }
+        recordingTimer?.invalidate()
+        recordingTimer = nil
+        saveEntry(audioURL: nil) // Audio file already saved by service; saveEntry triggers transcription
+    }
+
+    /// Save the entry after recording completes
+    private func saveEntry(audioURL: URL?) {
         flowState = .saved
 
-        // TODO: In production, stop AVAudioRecorder
-        // TODO: Finalize transcription
-        // TODO: Save audio file
-
-        // Create a new mock entry for the pending date (mood already selected in Step 1)
-        // Only create if no entry exists for that date
+        // Create a new entry for the pending date
         if entry(for: pendingEntryDate) == nil {
             let newEntry = Entry(
+                id: pendingEntryID ?? UUID(),
                 date: pendingEntryDate,
-                transcript: "This is a placeholder for your recorded entry. In the full app, your voice would be transcribed here automatically.",
+                transcript: "Transcribing...",
                 mood: selectedMood ?? 2,
                 hasAudio: true
             )
             entries.insert(newEntry, at: 0)
-            // Sort entries by date (newest first)
             entries.sort { $0.date > $1.date }
+        }
+
+        // Trigger transcription
+        if let entryID = pendingEntryID {
+            transcribeEntry(entryID: entryID)
+        }
+    }
+
+    /// Transcribe the audio for an entry
+    private func transcribeEntry(entryID: UUID) {
+        let fileURL = audioService.audioFileURL(for: entryID)
+        Task {
+            let transcript = await transcriptionService.transcribe(audioFileURL: fileURL)
+            if let index = entries.firstIndex(where: { $0.id == entryID }) {
+                entries[index].transcript = transcript ?? "Transcript unavailable"
+            }
         }
     }
 
@@ -187,35 +271,49 @@ class JournalViewModel: ObservableObject {
         recordingSeconds = 0
         selectedMood = nil
         pendingEntryDate = Date()
+        pendingEntryID = nil
+        cancellables.removeAll()
     }
 
     /// Cancel the current recording and return to record prompt
     func cancelRecording() {
+        audioService.cancelRecording()
         recordingTimer?.invalidate()
         recordingTimer = nil
         recordingSeconds = 0
+        pendingEntryID = nil
+        cancellables.removeAll()
         flowState = .recordPrompt
     }
 
     /// Advance from mood selection to recording prompt (Step 1 → Step 2)
     func advanceToRecordPrompt() {
-        refreshDailyPrompt()
+        loadDailyPrompt()
         flowState = .recordPrompt
     }
 
-    /// Select a random prompt ensuring no consecutive repeats
-    private func refreshDailyPrompt() {
-        let lastIndex = UserDefaults.standard.integer(forKey: "lastPromptIndex")
-        var newIndex = Int.random(in: 0..<prompts.count)
-        
-        // Ensure we don't pick the same one twice in a row, unless there's only 1 item
-        while newIndex == lastIndex && prompts.count > 1 {
-            newIndex = Int.random(in: 0..<prompts.count)
+    /// Load the cached daily prompt, or generate and cache a new one if the day has changed
+    private func loadDailyPrompt() {
+        let today = Calendar.current.startOfDay(for: Date())
+        let cachedDate = UserDefaults.standard.object(forKey: "dailyPromptDate") as? Date
+        let cachedPrompt = UserDefaults.standard.string(forKey: "dailyPromptText")
+
+        if let cachedDate, Calendar.current.isDate(cachedDate, inSameDayAs: today), let cachedPrompt {
+            dailyPrompt = cachedPrompt
+        } else {
+            // New day — pick a fresh prompt, avoiding the previous one
+            let lastIndex = UserDefaults.standard.integer(forKey: "lastPromptIndex")
+            var newIndex = Int.random(in: 0..<prompts.count)
+            while newIndex == lastIndex && prompts.count > 1 {
+                newIndex = Int.random(in: 0..<prompts.count)
+            }
+            let newPrompt = prompts[newIndex]
+
+            UserDefaults.standard.set(newIndex, forKey: "lastPromptIndex")
+            UserDefaults.standard.set(newPrompt, forKey: "dailyPromptText")
+            UserDefaults.standard.set(today, forKey: "dailyPromptDate")
+            dailyPrompt = newPrompt
         }
-        
-        // Save and update
-        UserDefaults.standard.set(newIndex, forKey: "lastPromptIndex")
-        dailyPrompt = prompts[newIndex]
     }
 
     /// Go back from recording prompt to mood selection (Step 2 → Step 1)

@@ -12,6 +12,7 @@ struct TodayView: View {
     @ObservedObject var viewModel: JournalViewModel
     @State private var animateBackground = false
     @State private var meshAnimationState: MeshAnimationState = .subtle
+    @State private var showDiscardConfirmation = false
 
     // Active mood for gradient orbs - uses saved entry or current selection
     private var activeMood: Int? {
@@ -84,6 +85,17 @@ struct TodayView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .confirmationDialog(
+                "Discard today's entry?",
+                isPresented: $showDiscardConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Discard", role: .destructive) {
+                    UINotificationFeedbackGenerator().notificationOccurred(.warning)
+                    viewModel.cancelRecording()
+                }
+                Button("Keep recording", role: .cancel) { }
+            }
         }
     }
 
@@ -96,14 +108,14 @@ struct TodayView: View {
             switch viewModel.flowState {
             case .startingPrompt:
                 BottomActionDock {
-                    Button("Let's record") {
+                    Button("Start") {
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                             viewModel.beginJournalingFromPrompt()
                         }
                     }
                     .buttonStyle(PrimaryDockButtonStyle())
                 } secondary: {
-                    Button("Not right now") {
+                    Button("Later") {
                         viewModel.dismissStartingPrompt()
                     }
                     .buttonStyle(SecondaryDockButtonStyle())
@@ -120,7 +132,8 @@ struct TodayView: View {
 
             case .recordPrompt:
                 BottomActionDock {
-                    Button("Start recording") {
+                    Button("I'm ready") {
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         viewModel.startRecording()
                     }
                     .buttonStyle(PrimaryDockButtonStyle())
@@ -133,8 +146,8 @@ struct TodayView: View {
 
             case .recording:
                 BottomActionDock {
-                    Button("Cancel") {
-                        viewModel.cancelRecording()
+                    Button("Discard recording") {
+                        showDiscardConfirmation = true
                     }
                     .buttonStyle(SecondaryDockButtonStyle())
                 }
@@ -235,6 +248,25 @@ struct StartingPromptView: View {
     @ObservedObject var viewModel: JournalViewModel
     @State private var hasAppeared = false
 
+    private var timeOfDayGreeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12: return "Good morning"
+        case 12..<17: return "Good afternoon"
+        case 17..<21: return "Good evening"
+        default: return "Good night"
+        }
+    }
+
+    private var greetingLine: String {
+        let name = viewModel.userName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty {
+            return "\(timeOfDayGreeting)."
+        } else {
+            return "\(timeOfDayGreeting), \(name)."
+        }
+    }
+
     var body: some View {
         VStack(spacing: Theme.Spacing.xl) {
             Spacer()
@@ -242,13 +274,13 @@ struct StartingPromptView: View {
             // Main prompt
             VStack(spacing: Theme.Spacing.lg) {
 
-                Text("Afternoon, Ben.")
+                Text(greetingLine)
                     .font(Theme.Typography.displayLarge())
                     .foregroundColor(Theme.Colors.textPrimary)
                     .multilineTextAlignment(.center)
                 Spacer()
                 Spacer()
-                Text("Let's record your daily entry")
+                Text("Take a moment for yourself")
                     .font(Theme.Typography.displayLarge())
                     .foregroundColor(Theme.Colors.textPrimary)
                     .multilineTextAlignment(.center)
@@ -278,7 +310,7 @@ struct MoodSelectionStepView: View {
             Spacer()
 
             // Main question - serif typography
-            Text("How are you\nfeeling today?")
+            Text("How does today\nfeel, overall?")
                 .font(Theme.Typography.displayLarge())
                 .foregroundColor(Theme.Colors.textPrimary)
                 .multilineTextAlignment(.center)
@@ -293,6 +325,7 @@ struct MoodSelectionStepView: View {
                                 index: index,
                                 isSelected: viewModel.selectedMood == index,
                                 action: {
+                                    UISelectionFeedbackGenerator().selectionChanged()
                                     withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                         viewModel.selectedMood = index
                                     }
@@ -335,15 +368,21 @@ struct MoodSelectionStepView: View {
 struct RecordPromptStepView: View {
     @ObservedObject var viewModel: JournalViewModel
 
-
     var body: some View {
         ZStack(alignment: .topLeading) {
             // Main Content
             VStack(spacing: 0) {
                 Spacer()
-                
-                // New prompt heading - centered
+
                 VStack(spacing: Theme.Spacing.md) {
+                    // Helper text
+                    Text("Just one question for today")
+                        .font(Theme.Typography.caption())
+                        .foregroundColor(Theme.Colors.textTertiary)
+                        .textCase(.uppercase)
+                        .tracking(1.0)
+
+                    // Daily prompt
                     Text(viewModel.dailyPrompt)
                         .font(Theme.Typography.displayLarge())
                         .foregroundColor(Theme.Colors.textPrimary)
@@ -354,8 +393,6 @@ struct RecordPromptStepView: View {
                 .padding(.horizontal, Theme.Spacing.lg)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-           
             .padding(.top, Theme.Spacing.sm)
         }
     }
@@ -404,6 +441,7 @@ struct RecordingStateView: View {
 
                 // Stop button
                 Button(action: {
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
                     viewModel.stopRecording()
                 }) {
                     ZStack {
@@ -417,6 +455,8 @@ struct RecordingStateView: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Stop recording")
+                .accessibilityHint("Double tap to stop recording")
             }
             .onAppear {
                 withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: false)) {
@@ -469,26 +509,95 @@ struct WaveformVisualization: View {
     }
 }
 
-// MARK: - Saved State (Simplified - mood already selected in Step 1)
+// MARK: - Saved State (Rich playback + transcript per plan)
 
 struct SimpleSavedStateView: View {
     @ObservedObject var viewModel: JournalViewModel
+    @State private var isPlaying = false
+    @State private var playbackProgress: Double = 0.0
+    @State private var showFullTranscript = false
+
+    private var savedEntry: Entry? {
+        viewModel.todayEntry
+    }
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.xl) {
-            // Success indicator
-            ZStack {
-                Circle()
-                    .fill(Theme.Colors.accentSoft.opacity(0.3))
-                    .frame(width: 100, height: 100)
-
-                AppIconImage(icon: .check, isSelected: true, size: 40)
-                    .foregroundColor(Theme.Colors.accent)
-            }
-
-            Text("Saved")
+        VStack(spacing: Theme.Spacing.lg) {
+            // Title
+            Text("Saved for today")
                 .font(Theme.Typography.displaySmall())
                 .foregroundColor(Theme.Colors.textPrimary)
+
+            // Main card
+            SoftCard {
+                VStack(spacing: Theme.Spacing.lg) {
+                    // Audio playback
+                    AudioPlaybackView(isPlaying: $isPlaying, progress: $playbackProgress)
+
+                    Divider()
+                        .background(Theme.Colors.textTertiary.opacity(0.2))
+
+                    // Transcript preview
+                    if let entry = savedEntry {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                            Text(entry.transcript)
+                                .font(Theme.Typography.body())
+                                .foregroundColor(Theme.Colors.textPrimary)
+                                .lineSpacing(6)
+                                .lineLimit(showFullTranscript ? nil : 3)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            if entry.transcript.count > 120 && !showFullTranscript {
+                                Button("See more") {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        showFullTranscript = true
+                                    }
+                                }
+                                .font(Theme.Typography.caption())
+                                .foregroundColor(Theme.Colors.accent)
+                            }
+                        }
+
+                        // Small note
+                        Text("Transcript saved automatically")
+                            .font(Theme.Typography.caption())
+                            .foregroundColor(Theme.Colors.textTertiary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Divider()
+                            .background(Theme.Colors.textTertiary.opacity(0.2))
+
+                        // Metadata: mood + date
+                        HStack {
+                            HStack(spacing: Theme.Spacing.sm) {
+                                AppIconImage(icon: entry.moodAppIcon, isSelected: true, size: 16)
+                                Text(entry.moodLabel)
+                                    .font(Theme.Typography.caption())
+                            }
+                            .foregroundColor(Theme.Colors.textSecondary)
+                            .padding(.horizontal, Theme.Spacing.md)
+                            .padding(.vertical, Theme.Spacing.sm)
+                            .background(Theme.Colors.accentSoft.opacity(0.2))
+                            .clipShape(Capsule())
+
+                            Spacer()
+
+                            Text(entry.formattedTime)
+                                .font(Theme.Typography.caption())
+                                .foregroundColor(Theme.Colors.textTertiary)
+                        }
+                    } else {
+                        // Fallback if entry not yet available
+                        Text("Your entry has been saved.")
+                            .font(Theme.Typography.body())
+                            .foregroundColor(Theme.Colors.textSecondary)
+                    }
+                }
+            }
+            .padding(.horizontal, Theme.Spacing.lg)
+        }
+        .onAppear {
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
         }
     }
 }

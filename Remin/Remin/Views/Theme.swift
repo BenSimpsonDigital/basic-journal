@@ -42,6 +42,9 @@ enum AppIcon: String {
     case documentMagnifyingGlass = "heroicon-document-magnifying-glass"
     case wrench = "heroicon-wrench"
 
+    // Profile icons
+    case user = "heroicon-user"
+
     // Mood icons
     case cloud = "heroicon-cloud"
     case sparkles = "heroicon-sparkles"
@@ -457,47 +460,47 @@ enum Theme {
     // MARK: - Typography
 
     struct Typography {
-        // Large display titles - serif for elegance
+        // Large display titles - serif for elegance (scales with Dynamic Type)
         static func displayLarge() -> Font {
-            .system(size: 34, weight: .regular, design: .serif)
+            .system(.largeTitle, design: .serif, weight: .regular)
         }
 
         static func displayMedium() -> Font {
-            .system(size: 28, weight: .regular, design: .serif)
+            .system(.title, design: .serif, weight: .regular)
         }
 
         static func displaySmall() -> Font {
-            .system(size: 24, weight: .regular, design: .serif)
+            .system(.title2, design: .serif, weight: .regular)
         }
 
-        // Headlines
+        // Headlines (scales with Dynamic Type)
         static func headline() -> Font {
-            .system(size: 20, weight: .semibold, design: .default)
+            .system(.headline, design: .default, weight: .semibold)
         }
 
         static func subheadline() -> Font {
-            .system(size: 15, weight: .medium, design: .default)
+            .system(.subheadline, design: .default, weight: .medium)
         }
 
-        // Body text
+        // Body text (scales with Dynamic Type)
         static func body() -> Font {
-            .system(size: 17, weight: .regular, design: .default)
+            .system(.body, design: .default, weight: .regular)
         }
 
         static func bodySmall() -> Font {
-            .system(size: 15, weight: .regular, design: .default)
+            .system(.callout, design: .default, weight: .regular)
         }
 
-        // Captions
+        // Captions (scales with Dynamic Type)
         static func caption() -> Font {
-            .system(size: 13, weight: .regular, design: .default)
+            .system(.caption, design: .default, weight: .regular)
         }
 
         static func captionMedium() -> Font {
-            .system(size: 13, weight: .medium, design: .default)
+            .system(.caption, design: .default, weight: .medium)
         }
 
-        // Monospace for timers
+        // Monospace for timers - kept at fixed size intentionally
         static func timer() -> Font {
             .system(size: 56, weight: .light, design: .monospaced)
         }
@@ -886,7 +889,7 @@ struct MoodPill: View {
     let action: () -> Void
 
     private let moodIcons: [AppIcon] = [.cloud, .cloud, .sun, .sun, .sparkles]
-    private let moodLabels = ["Low", "Heavy", "Okay", "Happy", "Amazing"]
+    private let moodLabels = ["Low", "Down", "Okay", "Happy", "Amazing"]
 
     var body: some View {
         Button(action: action) {
@@ -922,6 +925,8 @@ struct MoodPill: View {
             .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Mood: \(moodLabels[index])")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var gradientColors: [Color] {

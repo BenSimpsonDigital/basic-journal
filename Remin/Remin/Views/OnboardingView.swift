@@ -11,6 +11,10 @@ import SwiftUI
 struct OnboardingView: View {
     @ObservedObject var viewModel: JournalViewModel
     @State private var currentPage = 0
+    @State private var nameInput: String = ""
+    @FocusState private var isNameFieldFocused: Bool
+
+    private let totalPages = 4
 
     var body: some View {
         ZStack {
@@ -55,6 +59,12 @@ struct OnboardingView: View {
                         showMoodSelector: true
                     )
                     .tag(2)
+
+                    OnboardingNamePageView(
+                        nameInput: $nameInput,
+                        isNameFieldFocused: $isNameFieldFocused
+                    )
+                    .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
 
@@ -62,7 +72,7 @@ struct OnboardingView: View {
 
                 // Page indicators
                 HStack(spacing: Theme.Spacing.sm) {
-                    ForEach(0..<3) { index in
+                    ForEach(0..<totalPages, id: \.self) { index in
                         Capsule()
                             .fill(currentPage == index
                                   ? Theme.Colors.accent
@@ -75,16 +85,27 @@ struct OnboardingView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 BottomActionDock {
-                    Button(currentPage < 2 ? "Continue" : "Get Started") {
-                        if currentPage < 2 {
+                    Button(currentPage < totalPages - 1 ? "Continue" : "Get Started") {
+                        if currentPage < totalPages - 1 {
                             withAnimation(.spring(response: 0.4)) {
                                 currentPage += 1
                             }
                         } else {
+                            let trimmed = nameInput.trimmingCharacters(in: .whitespacesAndNewlines)
+                            if !trimmed.isEmpty {
+                                viewModel.userName = trimmed
+                            }
                             viewModel.completeOnboarding()
                         }
                     }
                     .buttonStyle(PrimaryDockButtonStyle())
+                } secondary: {
+                    if currentPage == totalPages - 1 {
+                        Button("Skip") {
+                            viewModel.completeOnboarding()
+                        }
+                        .buttonStyle(SecondaryDockButtonStyle())
+                    }
                 }
             }
         }
@@ -159,6 +180,49 @@ struct OnboardingPageView: View {
                 .padding(.horizontal, Theme.Spacing.lg)
         }
         // Container padding removed to allow scrollview to hit edges
+    }
+}
+
+// MARK: - Onboarding Name Page
+
+struct OnboardingNamePageView: View {
+    @Binding var nameInput: String
+    var isNameFieldFocused: FocusState<Bool>.Binding
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.xl) {
+            // Title
+            Text("What should\nwe call you?")
+                .font(Theme.Typography.displayLarge())
+                .foregroundColor(Theme.Colors.textPrimary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .padding(.horizontal, Theme.Spacing.lg)
+
+            // Subtitle
+            Text("This is just for your greeting.\nYou can change it later in Settings.")
+                .font(Theme.Typography.body())
+                .foregroundColor(Theme.Colors.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .padding(.horizontal, Theme.Spacing.lg)
+
+            // Name input field
+            TextField("Your name", text: $nameInput)
+                .font(Theme.Typography.headline())
+                .foregroundColor(Theme.Colors.textPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.vertical, Theme.Spacing.md)
+                .background(Theme.Colors.card)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.medium))
+                .shadow(color: .black.opacity(0.03), radius: 10, x: 0, y: 3)
+                .padding(.horizontal, Theme.Spacing.xxl)
+                .focused(isNameFieldFocused)
+                .textContentType(.givenName)
+                .autocorrectionDisabled()
+                .submitLabel(.done)
+        }
     }
 }
 

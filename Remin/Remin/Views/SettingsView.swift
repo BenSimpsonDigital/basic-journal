@@ -34,6 +34,14 @@ struct SettingsView: View {
                             alignment: .leading
                         )
 
+                        // Profile Section
+                        SettingsSectionCard(title: "Profile") {
+                            SettingsNameRow(
+                                userName: $viewModel.userName
+                            )
+                        }
+                        .padding(.horizontal, Theme.Spacing.lg)
+
                         // Reminder Section
                         SettingsSectionCard(title: "Reminders") {
                             VStack(spacing: 0) {
@@ -234,6 +242,44 @@ struct SettingsInfoRow: View {
             Text(value)
                 .font(Theme.Typography.body())
                 .foregroundColor(Theme.Colors.textTertiary)
+        }
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.md)
+    }
+}
+
+// MARK: - Name Row
+
+struct SettingsNameRow: View {
+    @Binding var userName: String
+
+    var body: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(Theme.Colors.accentSoft.opacity(0.3))
+                    .frame(width: 40, height: 40)
+
+                AppIconImage(icon: .user, isSelected: true, size: 16)
+                    .foregroundColor(Theme.Colors.accent)
+            }
+
+            // Text + field
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Name")
+                    .font(Theme.Typography.body())
+                    .foregroundColor(Theme.Colors.textPrimary)
+
+                TextField("Your name", text: $userName)
+                    .font(Theme.Typography.caption())
+                    .foregroundColor(Theme.Colors.textSecondary)
+                    .textContentType(.givenName)
+                    .autocorrectionDisabled()
+                    .submitLabel(.done)
+            }
+
+            Spacer()
         }
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.md)
