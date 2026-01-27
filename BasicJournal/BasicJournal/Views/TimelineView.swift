@@ -10,9 +10,11 @@ import SwiftUI
 
 struct TimelineView: View {
     @ObservedObject var viewModel: JournalViewModel
+    @State private var isCalendarView = false
+    @State private var navigationPath = NavigationPath()
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ZStack {
                 // Background
                 Theme.Colors.background
@@ -25,39 +27,72 @@ struct TimelineView: View {
                 }
                 .ignoresSafeArea()
 
-                if viewModel.entries.isEmpty {
+                if viewModel.entries.isEmpty && !isCalendarView {
                     EmptyTimelineStateView()
                 } else {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-                            // Header
+                            // Header with toggle button
                             ScreenHeaderView(
                                 title: "Timeline",
                                 subtitle: "",
-                                alignment: .leading
+                                alignment: .leading,
+                                trailingIcon: isCalendarView ? .listBullet : .calendar,
+                                trailingAction: {
+                                    withAnimation(.easeInOut(duration: 0.25)) {
+                                        isCalendarView.toggle()
+                                    }
+                                }
                             )
 
-
-                            ForEach(viewModel.entriesByDate, id: \.date) { group in
-                                Section {
-                                    ForEach(group.entries) { entry in
-                                        NavigationLink(destination: EntryDetailView(entry: entry, viewModel: viewModel)) {
-                                            TimelineEntryRow(entry: entry)
+                            // View content based on toggle state
+                            if isCalendarView {
+                                CalendarView(
+                                    entries: viewModel.entries,
+                                    onSelectDate: handleDateTap
+                                )
+                                .transition(.opacity)
+                                .padding(.bottom, Theme.Spacing.lg)
+                            } else {
+                                ForEach(viewModel.entriesByDate, id: \.date) { group in
+                                    Section {
+                                        ForEach(group.entries) { entry in
+                                            NavigationLink(destination: EntryDetailView(entry: entry, viewModel: viewModel)) {
+                                                TimelineEntryRow(entry: entry)
+                                            }
+                                            .buttonStyle(.plain)
                                         }
-                                        .buttonStyle(.plain)
+                                    } header: {
+                                        TimelineSectionHeader(title: group.date)
                                     }
-                                } header: {
-                                    TimelineSectionHeader(title: group.date)
                                 }
+                                .padding(.horizontal, Theme.Spacing.lg)
+                                .transition(.opacity)
                             }
-                            .padding(.horizontal, Theme.Spacing.lg)
                         }
-                      
+
                         .padding(.bottom, 120)
                     }
                 }
             }
             .navigationBarHidden(true)
+            .navigationDestination(for: Entry.ID.self) { entryId in
+                if let entry = viewModel.entries.first(where: { $0.id == entryId }) {
+                    EntryDetailView(entry: entry, viewModel: viewModel)
+                }
+            }
+        }
+    }
+
+    // MARK: - Calendar Date Tap Handler
+
+    private func handleDateTap(date: Date) {
+        if let entry = viewModel.entry(for: date) {
+            // Entry exists - navigate to detail view
+            navigationPath.append(entry.id)
+        } else {
+            // No entry - start new entry for that date
+            viewModel.startEntryForDate(date)
         }
     }
 }

@@ -177,12 +177,14 @@ struct StartingPromptView: View {
 
             // Main prompt
             VStack(spacing: Theme.Spacing.lg) {
-                Text("Let's record")
+                
+                Text("Afternoon, Ben.")
                     .font(Theme.Typography.displayLarge())
                     .foregroundColor(Theme.Colors.textPrimary)
                     .multilineTextAlignment(.center)
-
-                Text("how you're feeling")
+                Spacer()
+                Spacer()
+                Text("Let's record your daily entry")
                     .font(Theme.Typography.displayLarge())
                     .foregroundColor(Theme.Colors.textPrimary)
                     .multilineTextAlignment(.center)

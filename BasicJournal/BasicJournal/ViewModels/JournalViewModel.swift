@@ -41,6 +41,9 @@ class JournalViewModel: ObservableObject {
     /// Currently selected mood for new recording (nil = not selected)
     @Published var selectedMood: Int? = nil
 
+    /// Target date for the new entry (for creating past entries from calendar)
+    @Published var pendingEntryDate: Date = Date()
+
     /// Current random prompt text
     @Published var dailyPrompt: String = "What stood out about today?"
 
@@ -163,15 +166,18 @@ class JournalViewModel: ObservableObject {
         // TODO: Finalize transcription
         // TODO: Save audio file
 
-        // Create a new mock entry for today (mood already selected in Step 1)
-        if todayEntry == nil {
+        // Create a new mock entry for the pending date (mood already selected in Step 1)
+        // Only create if no entry exists for that date
+        if entry(for: pendingEntryDate) == nil {
             let newEntry = Entry(
-                date: Date(),
+                date: pendingEntryDate,
                 transcript: "This is a placeholder for your recorded entry. In the full app, your voice would be transcribed here automatically.",
                 mood: selectedMood ?? 2,
                 hasAudio: true
             )
             entries.insert(newEntry, at: 0)
+            // Sort entries by date (newest first)
+            entries.sort { $0.date > $1.date }
         }
     }
 
@@ -180,6 +186,7 @@ class JournalViewModel: ObservableObject {
         flowState = .selectMood
         recordingSeconds = 0
         selectedMood = nil
+        pendingEntryDate = Date()
     }
 
     /// Advance from mood selection to recording prompt (Step 1 → Step 2)
@@ -271,6 +278,20 @@ class JournalViewModel: ObservableObject {
     /// Persist the starting prompt state to UserDefaults
     private func persistStartingPromptState() {
         UserDefaults.standard.set(hasSeenStartingPromptToday, forKey: "hasSeenStartingPromptToday")
+    }
+
+    // MARK: - Calendar Support
+
+    /// Get entry for a specific calendar date (ignoring time)
+    func entry(for date: Date) -> Entry? {
+        let calendar = Calendar.current
+        return entries.first { calendar.isDate($0.date, inSameDayAs: date) }
+    }
+
+    /// Start a new entry for a specific date (past or today)
+    func startEntryForDate(_ date: Date) {
+        pendingEntryDate = date
+        flowState = .selectMood
     }
 
     // MARK: - Helpers

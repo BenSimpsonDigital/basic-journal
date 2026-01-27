@@ -11,21 +11,36 @@ struct ScreenHeaderView: View {
     let title: String
     let subtitle: String
     var alignment: HorizontalAlignment = .leading
-    
+    var trailingIcon: AppIcon? = nil
+    var trailingAction: (() -> Void)? = nil
+
     var body: some View {
-        VStack(alignment: alignment, spacing: Theme.Spacing.sm) {
-            Text(subtitle)
-                .font(Theme.Typography.caption())
-                .foregroundColor(Theme.Colors.textTertiary)
-                .textCase(.uppercase)
-                .tracking(1.2)
-            
-            Text(title)
-                .font(Theme.Typography.displayLarge())
-                .foregroundColor(Theme.Colors.textPrimary)
-                .multilineTextAlignment(textAlignment)
+        HStack(alignment: .bottom) {
+            VStack(alignment: alignment, spacing: Theme.Spacing.sm) {
+                if !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(Theme.Typography.caption())
+                        .foregroundColor(Theme.Colors.textTertiary)
+                        .textCase(.uppercase)
+                        .tracking(1.2)
+                }
+
+                Text(title)
+                    .font(Theme.Typography.displayLarge())
+                    .foregroundColor(Theme.Colors.textPrimary)
+                    .multilineTextAlignment(textAlignment)
+            }
+            .frame(maxWidth: .infinity, alignment: frameAlignment)
+
+            // Trailing action button
+            if let icon = trailingIcon, let action = trailingAction {
+                Button(action: action) {
+                    AppIconImage(icon: icon, isSelected: false, size: 22)
+                        .foregroundColor(Theme.Colors.textSecondary)
+                        .frame(width: 44, height: 44)
+                }
+            }
         }
-        .frame(maxWidth: .infinity, alignment: frameAlignment)
         .padding(.top, Theme.Spacing.lg)
         .padding(.bottom, Theme.Spacing.md)
         .padding(.horizontal, Theme.Spacing.lg)
