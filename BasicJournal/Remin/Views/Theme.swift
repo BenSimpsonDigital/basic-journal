@@ -1,6 +1,6 @@
 //
 //  Theme.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Centralized design system inspired by modern wellness apps

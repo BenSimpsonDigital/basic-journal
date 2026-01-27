@@ -1,6 +1,6 @@
 //
 //  CalendarView.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Calendar grid component for mood history visualization

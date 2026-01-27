@@ -1,6 +1,6 @@
 //
 //  SearchView.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Search with elegant design and text highlighting

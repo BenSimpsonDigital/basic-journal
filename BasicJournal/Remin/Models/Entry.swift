@@ -1,6 +1,6 @@
 //
 //  Entry.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Front-end prototype only

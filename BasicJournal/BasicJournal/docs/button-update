@@ -2,7 +2,7 @@ Button Dock Update Plan (Onboarding + Daily Entry + Sweep)
  Goal
 - Make primary/forward actions feel like a bottom “action dock”: pinned to bottom, near full width, tall pill, filled.
 - Make secondary actions (“Not right now”, “Maybe later”) an outline capsule of the **same size/width** as primary.
-- Match the layout/hierarchy from the reference screenshots while using Basic Journal’s existing visual system and tokens.
+- Match the layout/hierarchy from the reference screenshots while using Remin’s existing visual system and tokens.
 - Follow `PROJECT_PLAYBOOK.md` (“Bottom Dock Actions”, “hero -> supporting -> controls”, “glass sparingly”).
  Dock Specs (From References + Playbook)
 - **Placement:** pinned above home indicator using `safeAreaInset(edge: .bottom)`

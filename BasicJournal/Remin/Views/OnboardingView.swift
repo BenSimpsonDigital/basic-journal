@@ -1,6 +1,6 @@
 //
 //  OnboardingView.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Elegant onboarding with soft gradients and serif typography

@@ -1,6 +1,6 @@
 //
 //  ScreenHeaderView.swift
-//  BasicJournal
+//  Remin
 //
 //  Created by Ben Simpson on 2026-01-26.
 //

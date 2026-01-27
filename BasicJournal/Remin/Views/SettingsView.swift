@@ -1,6 +1,6 @@
 //
 //  SettingsView.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Settings with elegant design and soft cards

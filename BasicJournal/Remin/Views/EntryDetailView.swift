@@ -1,6 +1,6 @@
 //
 //  EntryDetailView.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Full entry view with elegant playback and mood editing

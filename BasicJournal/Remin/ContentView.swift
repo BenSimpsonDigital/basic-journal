@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Main app structure with elegant tab navigation

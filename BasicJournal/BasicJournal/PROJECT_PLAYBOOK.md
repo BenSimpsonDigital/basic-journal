@@ -1,6 +1,6 @@
 # Project Playbook — UI/UX Rules & Layouts
 
-This playbook defines the UI/UX rules for Basic Journal so new screens and changes stay consistent.
+This playbook defines the UI/UX rules for Remin so new screens and changes stay consistent.
 
 The reference screenshots are used for **layout, hierarchy, and composition** (hero-first screens, card grids, pill docks). The **visual style** (palette, tokens, components) comes from the existing design system in `Views/Theme.swift` and shared patterns like `Views/ScreenHeaderView.swift`.
 

@@ -1,6 +1,6 @@
 //
 //  TodayView.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Redesigned with warm, minimal aesthetic inspired by modern wellness apps

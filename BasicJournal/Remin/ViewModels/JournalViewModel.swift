@@ -1,6 +1,6 @@
 //
 //  JournalViewModel.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Lightweight state management for UI prototype

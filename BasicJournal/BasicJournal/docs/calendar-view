@@ -14,7 +14,7 @@ Add a calendar-based navigation and visualization for journal entries, allowing 
 
 ### Core UI Component
 
-#### [NEW] [CalendarView.swift](file:///Users/bensimpson/Documents/Projects/Basic%20Journal/basic-journal/BasicJournal/BasicJournal/Views/CalendarView.swift)
+#### [NEW] [CalendarView.swift](file:///Users/bensimpson/Documents/Projects/Basic%20Journal/basic-journal/BasicJournal/Remin/Views/CalendarView.swift)
 - Implement a custom calendar grid.
 - Each date cell will show the mood color as a soft background if an entry exists.
 - Tapping a date with an entry will trigger a navigation to `EntryDetailView` or show the entry transcript in a preview below the calendar.
@@ -22,18 +22,18 @@ Add a calendar-based navigation and visualization for journal entries, allowing 
 
 ### Timeline Integration
 
-#### [MODIFY] [ScreenHeaderView.swift](file:///Users/bensimpson/Documents/Projects/Basic%20Journal/basic-journal/BasicJournal/BasicJournal/Views/ScreenHeaderView.swift)
+#### [MODIFY] [ScreenHeaderView.swift](file:///Users/bensimpson/Documents/Projects/Basic%20Journal/basic-journal/BasicJournal/Remin/Views/ScreenHeaderView.swift)
 - Add an optional `action` parameter to support a trailing icon button in the header.
 - This will allow the calendar icon to sit "in-line" with the title as requested.
 
-#### [MODIFY] [TimelineView.swift](file:///Users/bensimpson/Documents/Projects/Basic%20Journal/basic-journal/BasicJournal/BasicJournal/Views/TimelineView.swift)
+#### [MODIFY] [TimelineView.swift](file:///Users/bensimpson/Documents/Projects/Basic%20Journal/basic-journal/BasicJournal/Remin/Views/TimelineView.swift)
 - Add a `@State` variable `isCalendarView` to toggle between List and Calendar view.
 - Pass the toggle action to `ScreenHeaderView`.
 - Use a `ZStack` or conditional `if/else` with a smooth transition (e.g., `.opacity` or `.move`) to switch between the existing `ScrollView` and the new `CalendarView`.
 
 ### View Model Support
 
-#### [MODIFY] [JournalViewModel.swift](file:///Users/bensimpson/Documents/Projects/Basic%20Journal/basic-journal/BasicJournal/BasicJournal/ViewModels/JournalViewModel.swift)
+#### [MODIFY] [JournalViewModel.swift](file:///Users/bensimpson/Documents/Projects/Basic%20Journal/basic-journal/BasicJournal/Remin/ViewModels/JournalViewModel.swift)
 - Add a helper function to retrieve an entry (or mood) for a specific `Date`.
 
 ---

@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Build
-xcodebuild -project ../BasicJournal.xcodeproj -scheme BasicJournal -destination 'platform=iOS Simulator,name=iPhone 15' build
+xcodebuild -project ../BasicJournal.xcodeproj -scheme Remin -destination 'platform=iOS Simulator,name=iPhone 15' build
 
 # Clean build
-xcodebuild -project ../BasicJournal.xcodeproj -scheme BasicJournal clean
+xcodebuild -project ../BasicJournal.xcodeproj -scheme Remin clean
 
 # Run tests (when added)
-xcodebuild test -project ../BasicJournal.xcodeproj -scheme BasicJournal -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -project ../BasicJournal.xcodeproj -scheme Remin -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
 Requires Xcode 15+ targeting iOS 17.0+.

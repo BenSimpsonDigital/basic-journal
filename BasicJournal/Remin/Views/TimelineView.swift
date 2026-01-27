@@ -1,6 +1,6 @@
 //
 //  TimelineView.swift
-//  BasicJournal
+//  Remin
 //
 //  One Thing - Daily Voice Journal
 //  Timeline with soft cards and elegant typography

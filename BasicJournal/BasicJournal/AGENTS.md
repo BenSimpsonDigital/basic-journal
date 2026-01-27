@@ -1,30 +1,30 @@
-# AGENTS.md - Development Guidelines for Basic Journal iOS App
+# AGENTS.md - Development Guidelines for Remin iOS App
 
 ## Project Overview
-Basic Journal is a voice-based journaling iOS app built with SwiftUI, featuring mood tracking, voice recording, and timeline visualization. This is a frontend prototype using MVVM architecture with comprehensive design system.
+Remin is a voice-based journaling iOS app built with SwiftUI, featuring mood tracking, voice recording, and timeline visualization. This is a frontend prototype using MVVM architecture with comprehensive design system.
 
 ## Build & Development Commands
 
 ### Xcode Build Commands
 ```bash
 # Build the project
-xcodebuild -project BasicJournal.xcodeproj -scheme BasicJournal -destination 'platform=iOS Simulator,name=iPhone 15' build
+xcodebuild -project BasicJournal.xcodeproj -scheme Remin -destination 'platform=iOS Simulator,name=iPhone 15' build
 
 # Run on simulator
-xcodebuild -project BasicJournal.xcodeproj -scheme BasicJournal -destination 'platform=iOS Simulator,name=iPhone 15' run
+xcodebuild -project BasicJournal.xcodeproj -scheme Remin -destination 'platform=iOS Simulator,name=iPhone 15' run
 
 # Clean build
-xcodebuild -project BasicJournal.xcodeproj -scheme BasicJournal clean
+xcodebuild -project BasicJournal.xcodeproj -scheme Remin clean
 ```
 
 ### Testing Commands
 ```bash
 # Currently no test suite exists - this is a prototype
 # When adding tests, use:
-xcodebuild test -project BasicJournal.xcodeproj -scheme BasicJournal -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -project BasicJournal.xcodeproj -scheme Remin -destination 'platform=iOS Simulator,name=iPhone 15'
 
 # Run specific test (when added)
-xcodebuild test -project BasicJournal.xcodeproj -scheme BasicJournal -destination 'platform=iOS Simulator,name=iPhone 15' -only-testing:BasicJournalTests/ViewModelTests
+xcodebuild test -project BasicJournal.xcodeproj -scheme Remin -destination 'platform=iOS Simulator,name=iPhone 15' -only-testing:ReminTests/ViewModelTests
 ```
 
 ### Development Workflow
@@ -59,8 +59,8 @@ import Foundation
 
 ### File Structure
 ```
-BasicJournal/
-├── BasicJournalApp.swift          # App entry point
+Remin/
+├── ReminApp.swift                # App entry point
 ├── Models/
 │   └── Entry.swift                # Data models
 ├── ViewModels/
@@ -117,7 +117,7 @@ BasicJournal/
 ### Test Structure
 ```swift
 import XCTest
-@testable import BasicJournal
+@testable import Remin
 
 class JournalViewModelTests: XCTestCase {
     var viewModel: JournalViewModel!
