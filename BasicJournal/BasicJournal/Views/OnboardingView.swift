@@ -71,23 +71,21 @@ struct OnboardingView: View {
                             .animation(.spring(response: 0.3), value: currentPage)
                     }
                 }
-                .padding(.bottom, Theme.Spacing.xl)
-
-                // Bottom button
-                Button(action: {
-                    if currentPage < 2 {
-                        withAnimation(.spring(response: 0.4)) {
-                            currentPage += 1
+                .padding(.bottom, Theme.Spacing.lg)
+            }
+            .safeAreaInset(edge: .bottom) {
+                BottomActionDock {
+                    Button(currentPage < 2 ? "Continue" : "Get Started") {
+                        if currentPage < 2 {
+                            withAnimation(.spring(response: 0.4)) {
+                                currentPage += 1
+                            }
+                        } else {
+                            viewModel.completeOnboarding()
                         }
-                    } else {
-                        viewModel.completeOnboarding()
                     }
-                }) {
-                    Text(currentPage < 2 ? "Continue" : "Get Started")
+                    .buttonStyle(PrimaryDockButtonStyle())
                 }
-                .buttonStyle(PillButtonStyle())
-                .padding(.horizontal, Theme.Spacing.xxl)
-                .padding(.bottom, Theme.Spacing.xxl)
             }
         }
     }

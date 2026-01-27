@@ -512,6 +512,13 @@ enum Theme {
         static let lg: CGFloat = 24
         static let xl: CGFloat = 32
         static let xxl: CGFloat = 48
+        static let dockButtonHeight: CGFloat = 56
+    }
+
+    // MARK: - Opacity
+
+    struct Opacity {
+        static let disabled: CGFloat = 0.4
     }
 
     // MARK: - Radius
@@ -757,6 +764,7 @@ struct GrainOverlay: View {
 
 // MARK: - Pill Button Style
 
+@available(*, deprecated, message: "Use PrimaryDockButtonStyle or SecondaryDockButtonStyle instead")
 struct PillButtonStyle: ButtonStyle {
     var isProminent: Bool = true
 
@@ -772,6 +780,87 @@ struct PillButtonStyle: ButtonStyle {
             )
             .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Primary Dock Button Style (Filled Capsule)
+
+struct PrimaryDockButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(Theme.Typography.subheadline())
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: Theme.Spacing.dockButtonHeight)
+            .background(
+                Capsule()
+                    .fill(Theme.Colors.accent)
+            )
+            .opacity(isEnabled ? 1.0 : Theme.Opacity.disabled)
+            .shadow(color: .black.opacity(0.08), radius: 14, x: 0, y: 8)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Secondary Dock Button Style (Outline Capsule)
+
+struct SecondaryDockButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(Theme.Typography.subheadline())
+            .foregroundColor(Theme.Colors.textPrimary)
+            .frame(maxWidth: .infinity)
+            .frame(height: Theme.Spacing.dockButtonHeight)
+            .background(Capsule().fill(Color.clear))
+            .overlay(
+                Capsule()
+                    .strokeBorder(Theme.Colors.textPrimary.opacity(0.25), lineWidth: 1.5)
+            )
+            .opacity(isEnabled ? 1.0 : Theme.Opacity.disabled)
+            .shadow(color: .black.opacity(0.05), radius: 12, x: 0, y: 6)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Bottom Action Dock
+
+struct BottomActionDock<Primary: View, Secondary: View>: View {
+    let primary: Primary
+    let secondary: Secondary?
+
+    init(
+        @ViewBuilder primary: () -> Primary,
+        @ViewBuilder secondary: () -> Secondary
+    ) {
+        self.primary = primary()
+        self.secondary = secondary()
+    }
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.md) {
+            primary
+
+            if let secondary = secondary {
+                secondary
+            }
+        }
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.top, Theme.Spacing.sm)
+        .padding(.bottom, Theme.Spacing.md)
+    }
+}
+
+// Convenience initializer for primary-only dock
+extension BottomActionDock where Secondary == EmptyView {
+    init(@ViewBuilder primary: () -> Primary) {
+        self.primary = primary()
+        self.secondary = nil
     }
 }
 
@@ -916,9 +1005,85 @@ struct VoiceInputPill: View {
             }
 
             VoiceInputPill(isRecording: false, action: {})
+        }
+    }
+}
 
-            Button("Get Started") {}
-                .buttonStyle(PillButtonStyle())
+#Preview("Bottom Action Dock - Primary Only") {
+    ZStack {
+        Theme.Colors.background.ignoresSafeArea()
+
+        VStack {
+            Spacer()
+            Text("Content goes here")
+                .font(Theme.Typography.displayLarge())
+            Spacer()
+        }
+        .safeAreaInset(edge: .bottom) {
+            BottomActionDock {
+                Button("Continue") {}
+                    .buttonStyle(PrimaryDockButtonStyle())
+            }
+        }
+    }
+}
+
+#Preview("Bottom Action Dock - Primary + Secondary") {
+    ZStack {
+        Theme.Colors.background.ignoresSafeArea()
+
+        VStack {
+            Spacer()
+            Text("Content goes here")
+                .font(Theme.Typography.displayLarge())
+            Spacer()
+        }
+        .safeAreaInset(edge: .bottom) {
+            BottomActionDock {
+                Button("Let's record") {}
+                    .buttonStyle(PrimaryDockButtonStyle())
+            } secondary: {
+                Button("Not right now") {}
+                    .buttonStyle(SecondaryDockButtonStyle())
+            }
+        }
+    }
+}
+
+#Preview("Bottom Action Dock - Disabled Primary") {
+    ZStack {
+        Theme.Colors.background.ignoresSafeArea()
+
+        VStack {
+            Spacer()
+            Text("Select a mood first")
+                .font(Theme.Typography.displayLarge())
+            Spacer()
+        }
+        .safeAreaInset(edge: .bottom) {
+            BottomActionDock {
+                Button("Next") {}
+                    .buttonStyle(PrimaryDockButtonStyle())
+                    .disabled(true)
+            }
+        }
+    }
+}
+
+#Preview("Bottom Action Dock - VoiceInputPill") {
+    ZStack {
+        Theme.Colors.background.ignoresSafeArea()
+
+        VStack {
+            Spacer()
+            Text("Ready to record")
+                .font(Theme.Typography.displayLarge())
+            Spacer()
+        }
+        .safeAreaInset(edge: .bottom) {
+            BottomActionDock {
+                VoiceInputPill(isRecording: false, action: {})
+            }
         }
     }
 }

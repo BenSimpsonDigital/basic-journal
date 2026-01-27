@@ -189,6 +189,14 @@ class JournalViewModel: ObservableObject {
         pendingEntryDate = Date()
     }
 
+    /// Cancel the current recording and return to record prompt
+    func cancelRecording() {
+        recordingTimer?.invalidate()
+        recordingTimer = nil
+        recordingSeconds = 0
+        flowState = .recordPrompt
+    }
+
     /// Advance from mood selection to recording prompt (Step 1 → Step 2)
     func advanceToRecordPrompt() {
         refreshDailyPrompt()

@@ -76,13 +76,77 @@ struct TodayView: View {
                         } else {
                             TodayRecordingView(viewModel: viewModel, meshAnimationState: $meshAnimationState)
                         }
-
-                        Spacer(minLength: 120)
                     }
                     .padding(.horizontal, 0)
                 }
+                .safeAreaInset(edge: .bottom) {
+                    todayDock
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    // MARK: - Bottom Dock
+
+    @ViewBuilder
+    private var todayDock: some View {
+        // Only show dock during recording flow (not when viewing existing entry)
+        if viewModel.todayEntry == nil || viewModel.flowState == .recording {
+            switch viewModel.flowState {
+            case .startingPrompt:
+                BottomActionDock {
+                    Button("Let's record") {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            viewModel.beginJournalingFromPrompt()
+                        }
+                    }
+                    .buttonStyle(PrimaryDockButtonStyle())
+                } secondary: {
+                    Button("Not right now") {
+                        viewModel.dismissStartingPrompt()
+                    }
+                    .buttonStyle(SecondaryDockButtonStyle())
+                }
+
+            case .selectMood:
+                BottomActionDock {
+                    Button("Next") {
+                        viewModel.advanceToRecordPrompt()
+                    }
+                    .buttonStyle(PrimaryDockButtonStyle())
+                    .disabled(viewModel.selectedMood == nil)
+                }
+
+            case .recordPrompt:
+                BottomActionDock {
+                    Button("Start recording") {
+                        viewModel.startRecording()
+                    }
+                    .buttonStyle(PrimaryDockButtonStyle())
+                } secondary: {
+                    Button("Back") {
+                        viewModel.goBackToMoodSelection()
+                    }
+                    .buttonStyle(SecondaryDockButtonStyle())
+                }
+
+            case .recording:
+                BottomActionDock {
+                    Button("Cancel") {
+                        viewModel.cancelRecording()
+                    }
+                    .buttonStyle(SecondaryDockButtonStyle())
+                }
+
+            case .saved:
+                BottomActionDock {
+                    Button("Done") {
+                        viewModel.completeEntry()
+                    }
+                    .buttonStyle(PrimaryDockButtonStyle())
+                }
+            }
         }
     }
 
@@ -177,7 +241,7 @@ struct StartingPromptView: View {
 
             // Main prompt
             VStack(spacing: Theme.Spacing.lg) {
-                
+
                 Text("Afternoon, Ben.")
                     .font(Theme.Typography.displayLarge())
                     .foregroundColor(Theme.Colors.textPrimary)
@@ -193,28 +257,6 @@ struct StartingPromptView: View {
             .scaleEffect(hasAppeared ? 1.0 : 0.9)
             .opacity(hasAppeared ? 1.0 : 0)
             .animation(.spring(response: 0.6, dampingFraction: 0.8), value: hasAppeared)
-
-            Spacer()
-
-            // Action buttons
-            VStack(spacing: Theme.Spacing.md) {
-                // Primary action
-                Button("Let's record") {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                        viewModel.beginJournalingFromPrompt()
-                    }
-                }
-                .buttonStyle(PillButtonStyle())
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-
-                // Secondary action
-                Button("Not right now") {
-                    viewModel.dismissStartingPrompt()
-                }
-                .font(Theme.Typography.body())
-                .foregroundColor(Theme.Colors.textSecondary)
-                .padding(.vertical, Theme.Spacing.sm)
-            }
 
             Spacer()
         }
@@ -283,19 +325,8 @@ struct MoodSelectionStepView: View {
                 }
             }
 
-
-            // Next button (appears when mood selected)
-            if viewModel.selectedMood != nil {
-                Button("Next") {
-                    viewModel.advanceToRecordPrompt()
-                }
-                .buttonStyle(PillButtonStyle())
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-            }
-
             Spacer()
         }
-        .animation(.spring(response: 0.3), value: viewModel.selectedMood != nil)
     }
 }
 
@@ -321,40 +352,6 @@ struct RecordPromptStepView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.horizontal, Theme.Spacing.lg)
-
-                Spacer()
-                    .frame(height: Theme.Spacing.xl)
-
-//                // Gradient orb decoration
-//                AnimatedGradientOrb(size: 160, mood: viewModel.selectedMood)
-//                    .padding(.vertical, Theme.Spacing.lg)
-
-                Spacer()
-                    .frame(height: Theme.Spacing.xl)
-
-                // Voice input pill button
-                VoiceInputPill(isRecording: false) {
-                    viewModel.startRecording()
-                }
-
-                // Subtle hint
-                Text("Tap to start recording")
-                    .font(Theme.Typography.caption())
-                    .foregroundColor(Theme.Colors.textTertiary)
-                    .padding(.top, Theme.Spacing.md)
-                
-                Spacer()
-                // Back button - pinned top-left via ZStack
-                Button(action: { viewModel.goBackToMoodSelection() }) {
-                    HStack(spacing: Theme.Spacing.xs) {
-                        AppIconImage(icon: .chevronLeft, size: 16)
-                        Text("Back")
-                    }
-                    .foregroundColor(Theme.Colors.textSecondary)
-                    .padding(.horizontal, Theme.Spacing.md)
-                    .padding(.vertical, Theme.Spacing.xxl)
-                    .background(Theme.Colors.background.opacity(0.01)) // Touch target
-                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -492,13 +489,6 @@ struct SimpleSavedStateView: View {
             Text("Saved")
                 .font(Theme.Typography.displaySmall())
                 .foregroundColor(Theme.Colors.textPrimary)
-
-            // Done button
-            Button("Done") {
-                viewModel.completeEntry()
-            }
-            .buttonStyle(PillButtonStyle())
-        
         }
     }
 }
