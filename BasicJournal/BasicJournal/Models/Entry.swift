@@ -33,7 +33,7 @@ extension Entry {
     static let moodIcons = ["cloud.rain", "cloud", "sun.haze", "sun.max", "sparkles"]
 
     /// Mood labels for accessibility and display
-    static let moodLabels = ["Low", "Down", "Okay", "Good", "Great"]
+    static let moodLabels = ["Low", "Heavy", "Okay", "Happy", "Amazing"]
 
     /// Mood colors - soft, calming palette
     static let moodColors: [String] = [

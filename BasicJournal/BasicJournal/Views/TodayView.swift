@@ -11,6 +11,7 @@ import SwiftUI
 struct TodayView: View {
     @ObservedObject var viewModel: JournalViewModel
     @State private var animateBackground = false
+    @State private var meshAnimationState: MeshAnimationState = .subtle
 
     // Active mood for gradient orbs - uses saved entry or current selection
     private var activeMood: Int? {
@@ -24,37 +25,37 @@ struct TodayView: View {
                 Theme.Colors.background
                     .ignoresSafeArea()
 
-                // State for background animation
-                Color.clear
-                    .onAppear { animateBackground = true }
+                // Decorative background gradient - bottom-aligned mesh on iOS 18+
+                if #available(iOS 18.0, *) {
+                    BottomMeshGradient(mood: activeMood, animationState: meshAnimationState)
+                        .animation(.easeInOut(duration: 0.8), value: activeMood)
+                } else {
+                    // Fallback to orbs for iOS 17
+                    GeometryReader { geo in
+                        // Top right - warm
+                        GradientOrb(size: 350, opacity: 0.50, blur: 90, mood: activeMood)
+                            .offset(x: geo.size.width * 0.5, y: -80)
+                            .scaleEffect(animateBackground ? 1.15 : 1.0)  // Enhanced from 1.1
+                            .animation(.easeInOut(duration: 8).repeatForever(autoreverses: true), value: animateBackground)
 
+                        // Bottom left - cool
+                        GradientOrb(size: 300, opacity: 0.45, blur: 80, mood: activeMood)
+                            .offset(x: -80, y: geo.size.height * 0.55)
+                            .scaleEffect(animateBackground ? 1.20 : 1.0)  // Enhanced from 1.15
+                            .animation(.easeInOut(duration: 7).repeatForever(autoreverses: true).delay(1), value: animateBackground)
 
-
-                // Decorative gradient orbs with mood-based colors and breathing animation
-                GeometryReader { geo in
-                    // Top right - warm
-                    GradientOrb(size: 350, opacity: 0.50, blur: 90, mood: activeMood)
-                        .offset(x: geo.size.width * 0.5, y: -80)
-                        .scaleEffect(animateBackground ? 1.1 : 1.0)
-                        .animation(.easeInOut(duration: 8).repeatForever(autoreverses: true), value: animateBackground)
-
-                    // Bottom left - cool
-                    GradientOrb(size: 300, opacity: 0.45, blur: 80, mood: activeMood)
-                        .offset(x: -80, y: geo.size.height * 0.55)
-                        .scaleEffect(animateBackground ? 1.15 : 1.0)
-                        .animation(.easeInOut(duration: 7).repeatForever(autoreverses: true).delay(1), value: animateBackground)
-
-                    // Center floating - soft
-                    GradientOrb(size: 200, opacity: 0.35, blur: 60, mood: activeMood)
-                        .offset(x: geo.size.width * 0.2, y: geo.size.height * 0.3)
-                        .scaleEffect(animateBackground ? 1.2 : 0.9)
-                        .animation(.easeInOut(duration: 10).repeatForever(autoreverses: true).delay(2), value: animateBackground)
+                        // Center floating - soft
+                        GradientOrb(size: 200, opacity: 0.35, blur: 60, mood: activeMood)
+                            .offset(x: geo.size.width * 0.2, y: geo.size.height * 0.3)
+                            .scaleEffect(animateBackground ? 1.25 : 0.85)  // Enhanced from 1.2:0.9
+                            .animation(.easeInOut(duration: 10).repeatForever(autoreverses: true).delay(2), value: animateBackground)
+                    }
+                    .animation(.easeInOut(duration: 0.6), value: activeMood)
+                    .onAppear {
+                        animateBackground = true
+                    }
+                    .ignoresSafeArea()
                 }
-                .animation(.easeInOut(duration: 0.6), value: activeMood)
-                .onAppear {
-                    animateBackground = true
-                }
-                .ignoresSafeArea()
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: Theme.Spacing.xl) {
@@ -71,7 +72,7 @@ struct TodayView: View {
                            viewModel.flowState != .recording {
                             TodayEntryCardView(entry: todayEntry, viewModel: viewModel)
                         } else {
-                            TodayRecordingView(viewModel: viewModel)
+                            TodayRecordingView(viewModel: viewModel, meshAnimationState: $meshAnimationState)
                         }
 
                         Spacer(minLength: 120)
@@ -101,7 +102,7 @@ struct TodayView: View {
 
 struct TodayRecordingView: View {
     @ObservedObject var viewModel: JournalViewModel
-
+    @Binding var meshAnimationState: MeshAnimationState
 
     var body: some View {
         ZStack {
@@ -130,6 +131,26 @@ struct TodayRecordingView: View {
             }
         }
         .animation(.spring(response: 0.5, dampingFraction: 0.8), value: viewModel.flowState)
+        .onChange(of: viewModel.flowState) { _, newState in
+            // Update mesh animation state based on flow state
+            if #available(iOS 18.0, *) {
+                switch newState {
+                case .recording:
+                    meshAnimationState = .calm
+                case .selectMood, .recordPrompt, .saved:
+                    meshAnimationState = .subtle
+                }
+            }
+        }
+        .onChange(of: viewModel.selectedMood) { _, newMood in
+            // Trigger hype burst when mood selected
+            if #available(iOS 18.0, *), newMood != nil {
+                meshAnimationState = .hyped
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    meshAnimationState = .subtle
+                }
+            }
+        }
     }
 }
 
@@ -233,9 +254,9 @@ struct RecordPromptStepView: View {
                 Spacer()
                     .frame(height: Theme.Spacing.xl)
 
-                // Gradient orb decoration
-                AnimatedGradientOrb(size: 160, mood: viewModel.selectedMood)
-                    .padding(.vertical, Theme.Spacing.lg)
+//                // Gradient orb decoration
+//                AnimatedGradientOrb(size: 160, mood: viewModel.selectedMood)
+//                    .padding(.vertical, Theme.Spacing.lg)
 
                 Spacer()
                     .frame(height: Theme.Spacing.xl)
