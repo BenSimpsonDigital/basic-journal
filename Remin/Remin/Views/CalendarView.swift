@@ -3,7 +3,7 @@
 //  Remin
 //
 //  One Thing - Daily Voice Journal
-//  Calendar grid component for mood history visualization
+//  Calendar grid with muted mood accent colors
 //
 
 import SwiftUI
@@ -24,13 +24,8 @@ struct CalendarView: View {
 
     var body: some View {
         VStack(spacing: Theme.Spacing.md) {
-            // Month/Year header with navigation
             monthHeader
-
-            // Weekday labels
             weekdayHeader
-
-            // Calendar grid
             calendarGrid
         }
         .padding(.horizontal, Theme.Spacing.lg)
@@ -80,7 +75,6 @@ struct CalendarView: View {
 
     private var calendarGrid: some View {
         let days = daysInMonth(for: displayedMonth)
-        let rows = days.chunked(into: 7)
 
         return LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 7), spacing: 4) {
             ForEach(Array(days.enumerated()), id: \.offset) { index, date in
@@ -119,39 +113,33 @@ struct CalendarView: View {
         }
     }
 
-    /// Returns array of dates for the month, with nil padding for grid alignment
     private func daysInMonth(for date: Date) -> [Date?] {
         guard let monthInterval = calendar.dateInterval(of: .month, for: date) else {
             return []
         }
 
-        // Get the weekday of the first day (adjusted for locale's first weekday)
         let firstWeekday = calendar.component(.weekday, from: monthInterval.start)
         let firstWeekdayOfLocale = calendar.firstWeekday
         let leadingPadding = (firstWeekday - firstWeekdayOfLocale + 7) % 7
 
-        // Get number of days in the month
         guard let range = calendar.range(of: .day, in: .month, for: date) else {
             return []
         }
 
         var days: [Date?] = Array(repeating: nil, count: leadingPadding)
 
-        // Add all days of the month
         for day in range {
             if let dayDate = calendar.date(byAdding: .day, value: day - 1, to: monthInterval.start) {
                 days.append(dayDate)
             }
         }
 
-        // Add trailing padding to complete the last row
         let trailingPadding = (7 - (days.count % 7)) % 7
         days.append(contentsOf: Array(repeating: nil as Date?, count: trailingPadding))
 
         return days
     }
 
-    /// Lookup entry for a specific calendar date (ignoring time)
     private func entry(for date: Date) -> Entry? {
         entries.first { calendar.isDate($0.date, inSameDayAs: date) }
     }
@@ -170,32 +158,29 @@ struct CalendarDayCell: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                // Background - mood gradient if entry exists
+                // Background
                 if let entry = entry {
                     RoundedRectangle(cornerRadius: Theme.Radius.small)
-                        .fill(
-                            LinearGradient(
-                                colors: Theme.Colors.moodPillGradients[entry.mood],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(Theme.Colors.moodAccents[entry.mood].opacity(0.15))
                 } else {
                     RoundedRectangle(cornerRadius: Theme.Radius.small)
-                        .fill(Theme.Colors.card.opacity(0.5))
+                        .fill(Theme.Colors.surface.opacity(0.5))
                 }
 
-                // Today indicator - border ring
+                // Today indicator
                 if isToday {
                     RoundedRectangle(cornerRadius: Theme.Radius.small)
-                        .strokeBorder(Theme.Colors.textPrimary.opacity(0.4), lineWidth: 2)
+                        .strokeBorder(Theme.Colors.accent, lineWidth: 1.5)
                 }
 
                 // Day number
                 Text("\(calendar.component(.day, from: date))")
                     .font(isToday ? Theme.Typography.captionMedium() : Theme.Typography.caption())
-                    .fontWeight(isToday ? .bold : .regular)
-                    .foregroundColor(entry != nil ? .white : Theme.Colors.textPrimary)
+                    .foregroundColor(
+                        entry != nil
+                        ? Theme.Colors.moodAccents[entry!.mood]
+                        : Theme.Colors.textPrimary
+                    )
             }
             .aspectRatio(1, contentMode: .fit)
         }

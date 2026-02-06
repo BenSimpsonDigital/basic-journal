@@ -3,37 +3,23 @@
 //  Remin
 //
 //  One Thing - Daily Voice Journal
-//  Settings with elegant design and soft cards
+//  Settings presented as a sheet with clean, minimal design
 //
 
 import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var viewModel: JournalViewModel
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background
                 Theme.Colors.background
                     .ignoresSafeArea()
 
-                // Decorative orb
-                GeometryReader { geo in
-                    GradientOrb(size: 200, opacity: 0.2, blur: 80)
-                        .offset(x: -60, y: geo.size.height * 0.6)
-                }
-                .ignoresSafeArea()
-
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: Theme.Spacing.md) {
-                        // Header
-                        ScreenHeaderView(
-                            title: "Settings",
-                            subtitle: "",
-                            alignment: .leading
-                        )
-
                         // Profile Section
                         SettingsSectionCard(title: "Profile") {
                             SettingsNameRow(
@@ -54,7 +40,7 @@ struct SettingsView: View {
 
                                 if viewModel.reminderEnabled {
                                     Divider()
-                                        .background(Theme.Colors.textTertiary.opacity(0.2))
+                                        .foregroundColor(Theme.Colors.border)
                                         .padding(.leading, 60)
 
                                     SettingsTimeDisplay(
@@ -64,12 +50,14 @@ struct SettingsView: View {
                                     )
                                 }
                             }
-                        }  .padding(.horizontal, Theme.Spacing.lg)
+                        }
+                        .padding(.horizontal, Theme.Spacing.lg)
 
                         // Privacy Section
                         SettingsSectionCard(title: "Privacy") {
                             SettingsPrivacyRow()
-                        }  .padding(.horizontal, Theme.Spacing.lg)
+                        }
+                        .padding(.horizontal, Theme.Spacing.lg)
 
                         // About Section
                         SettingsSectionCard(title: "About") {
@@ -81,7 +69,7 @@ struct SettingsView: View {
                                 )
 
                                 Divider()
-                                    .background(Theme.Colors.textTertiary.opacity(0.2))
+                                    .foregroundColor(Theme.Colors.border)
                                     .padding(.leading, 60)
 
                                 SettingsInfoRow(
@@ -90,12 +78,23 @@ struct SettingsView: View {
                                     value: "Prototype"
                                 )
                             }
-                        }  .padding(.horizontal, Theme.Spacing.lg)
+                        }
+                        .padding(.horizontal, Theme.Spacing.lg)
                     }
-                  
+                    .padding(.top, Theme.Spacing.md)
+                    .padding(.bottom, Theme.Spacing.xxl)
                 }
             }
-            .navigationBarHidden(true)
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(Theme.Colors.accent)
+                }
+            }
         }
     }
 }
@@ -118,7 +117,10 @@ struct SettingsSectionCard<Content: View>: View {
             content
                 .background(Theme.Colors.card)
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.large))
-                .shadow(color: .black.opacity(0.03), radius: 10, x: 0, y: 3)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.Radius.large)
+                        .strokeBorder(Theme.Colors.border, lineWidth: 1)
+                )
         }
     }
 }
@@ -133,17 +135,15 @@ struct SettingsToggle: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
-            // Icon
             ZStack {
                 Circle()
-                    .fill(Theme.Colors.accentSoft.opacity(0.3))
+                    .fill(Theme.Colors.surface)
                     .frame(width: 40, height: 40)
 
                 AppIconImage(icon: icon, isSelected: true, size: 16)
                     .foregroundColor(Theme.Colors.accent)
             }
 
-            // Text
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(Theme.Typography.body())
@@ -156,7 +156,6 @@ struct SettingsToggle: View {
 
             Spacer()
 
-            // Toggle
             Toggle("", isOn: $isOn)
                 .labelsHidden()
                 .tint(Theme.Colors.accent)
@@ -181,30 +180,27 @@ struct SettingsTimeDisplay: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
-            // Icon
             ZStack {
                 Circle()
-                    .fill(Theme.Colors.accentSoft.opacity(0.3))
+                    .fill(Theme.Colors.surface)
                     .frame(width: 40, height: 40)
 
                 AppIconImage(icon: icon, isSelected: true, size: 16)
                     .foregroundColor(Theme.Colors.accent)
             }
 
-            // Text
             Text(title)
                 .font(Theme.Typography.body())
                 .foregroundColor(Theme.Colors.textPrimary)
 
             Spacer()
 
-            // Time badge
             Text(formattedTime)
                 .font(Theme.Typography.captionMedium())
                 .foregroundColor(Theme.Colors.textSecondary)
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.vertical, Theme.Spacing.sm)
-                .background(Theme.Colors.accentSoft.opacity(0.2))
+                .background(Theme.Colors.surface)
                 .clipShape(Capsule())
         }
         .padding(.horizontal, Theme.Spacing.md)
@@ -221,24 +217,21 @@ struct SettingsInfoRow: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
-            // Icon
             ZStack {
                 Circle()
-                    .fill(Theme.Colors.accentSoft.opacity(0.3))
+                    .fill(Theme.Colors.surface)
                     .frame(width: 40, height: 40)
 
                 AppIconImage(icon: icon, isSelected: true, size: 16)
                     .foregroundColor(Theme.Colors.accent)
             }
 
-            // Title
             Text(title)
                 .font(Theme.Typography.body())
                 .foregroundColor(Theme.Colors.textPrimary)
 
             Spacer()
 
-            // Value
             Text(value)
                 .font(Theme.Typography.body())
                 .foregroundColor(Theme.Colors.textTertiary)
@@ -255,17 +248,15 @@ struct SettingsNameRow: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
-            // Icon
             ZStack {
                 Circle()
-                    .fill(Theme.Colors.accentSoft.opacity(0.3))
+                    .fill(Theme.Colors.surface)
                     .frame(width: 40, height: 40)
 
                 AppIconImage(icon: .user, isSelected: true, size: 16)
                     .foregroundColor(Theme.Colors.accent)
             }
 
-            // Text + field
             VStack(alignment: .leading, spacing: 2) {
                 Text("Name")
                     .font(Theme.Typography.body())
@@ -291,17 +282,15 @@ struct SettingsNameRow: View {
 struct SettingsPrivacyRow: View {
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
-            // Icon
             ZStack {
                 Circle()
-                    .fill(Theme.Colors.accentSoft.opacity(0.3))
+                    .fill(Theme.Colors.surface)
                     .frame(width: 40, height: 40)
 
                 AppIconImage(icon: .shieldCheck, isSelected: true, size: 16)
                     .foregroundColor(Theme.Colors.accent)
             }
 
-            // Text
             VStack(alignment: .leading, spacing: 4) {
                 Text("Your data stays private")
                     .font(Theme.Typography.body())

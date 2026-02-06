@@ -3,7 +3,7 @@
 //  Remin
 //
 //  One Thing - Daily Voice Journal
-//  Main app structure with elegant tab navigation
+//  Main app structure with minimal 2-tab navigation
 //
 
 import SwiftUI
@@ -28,6 +28,7 @@ struct ContentView: View {
 struct MainTabView: View {
     @ObservedObject var viewModel: JournalViewModel
     @Binding var selectedTab: Int
+    @State private var showSettings = false
     @Environment(\.scenePhase) private var scenePhase
 
     init(viewModel: JournalViewModel, selectedTab: Binding<Int>) {
@@ -36,36 +37,33 @@ struct MainTabView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        VStack(spacing: 0) {
             // Content
             TabView(selection: $selectedTab) {
                 TodayView(viewModel: viewModel)
                     .tag(0)
                     .toolbar(.hidden, for: .tabBar)
 
-                TimelineView(viewModel: viewModel)
+                JournalView(viewModel: viewModel)
                     .tag(1)
-                    .toolbar(.hidden, for: .tabBar)
-
-                SearchView(viewModel: viewModel)
-                    .tag(2)
-                    .toolbar(.hidden, for: .tabBar)
-
-                SettingsView(viewModel: viewModel)
-                    .tag(3)
                     .toolbar(.hidden, for: .tabBar)
             }
 
-            // Custom Tab Bar
-            // Custom Liquid Glass Tab Bar
-            LiquidGlassTabBar(selectedTab: $selectedTab)
+            // Minimal Tab Bar
+            MinimalTabBar(
+                selectedTab: $selectedTab,
+                onSettingsTap: { showSettings = true }
+            )
         }
         .ignoresSafeArea(.keyboard)
-        // Navigate to Timeline when user dismisses starting prompt
+        .sheet(isPresented: $showSettings) {
+            SettingsView(viewModel: viewModel)
+        }
+        // Navigate to Journal when user dismisses starting prompt
         .onChange(of: viewModel.shouldNavigateToTimeline) { _, shouldNavigate in
             if shouldNavigate {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    selectedTab = 1 // Timeline tab
+                withAnimation(.easeOut(duration: 0.25)) {
+                    selectedTab = 1
                 }
                 viewModel.shouldNavigateToTimeline = false
             }
@@ -76,7 +74,7 @@ struct MainTabView: View {
                 viewModel.flowState = .selectMood
             }
         }
-        // Check for daily reset when app becomes active (handles midnight crossing)
+        // Check for daily reset when app becomes active
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 viewModel.checkAndResetDailyPrompt()
@@ -88,58 +86,55 @@ struct MainTabView: View {
     }
 }
 
-// MARK: - Custom Tab Bar
+// MARK: - Minimal Tab Bar
 
-struct LiquidGlassTabBar: View {
+struct MinimalTabBar: View {
     @Binding var selectedTab: Int
-
-    private let tabs: [(icon: AppIcon, label: String)] = [
-        (.sun, "Today"),
-        (.calendar, "Timeline"),
-        (.magnifyingGlass, "Search"),
-        (.cog, "Settings")
-    ]
+    var onSettingsTap: () -> Void
 
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(0..<tabs.count, id: \.self) { index in
-                TabBarButton(
-                    icon: tabs[index].icon,
-                    label: tabs[index].label,
-                    isSelected: selectedTab == index
-                ) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        selectedTab = index
-                    }
+        VStack(spacing: 0) {
+            HStack {
+                // Today tab
+                TabBarItem(
+                    icon: .sun,
+                    label: "Today",
+                    isSelected: selectedTab == 0,
+                    action: { selectedTab = 0 }
+                )
+
+                // Journal tab
+                TabBarItem(
+                    icon: .documentText,
+                    label: "Journal",
+                    isSelected: selectedTab == 1,
+                    action: { selectedTab = 1 }
+                )
+
+                Spacer()
+
+                // Settings gear (opens sheet)
+                Button(action: onSettingsTap) {
+                    AppIconImage(icon: .cog, isSelected: false, size: 22)
+                        .foregroundColor(Theme.Colors.textTertiary)
+                        .frame(width: 44, height: 44)
                 }
+                .buttonStyle(.plain)
             }
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.sm)
         }
-        .padding(.horizontal, Theme.Spacing.md)
-        .padding(.vertical, 12)
         .background(
-            ZStack {
-                // Blur base
-                Capsule()
-                    .fill(.ultraThinMaterial)
-                
-                // White glass tint
-                Capsule()
-                    .fill(Color.white.opacity(0.3))
-                
-                // Subtle border/shine
-                Capsule()
-                    .stroke(Color.white.opacity(0.5), lineWidth: 1)
-            }
-            .shadow(color: .black.opacity(0.1), radius: 15, y: 5)
+            Theme.Colors.background
+                .shadow(color: .black.opacity(0.04), radius: 1, y: -1)
+                .ignoresSafeArea(edges: .bottom)
         )
-        .padding(.horizontal, Theme.Spacing.xxl) // Float in from sides
-        .padding(.bottom, Theme.Spacing.sm) // Float up from bottom
     }
 }
 
-// MARK: - Tab Bar Button
+// MARK: - Tab Bar Item
 
-struct TabBarButton: View {
+struct TabBarItem: View {
     let icon: AppIcon
     let label: String
     let isSelected: Bool
@@ -147,17 +142,13 @@ struct TabBarButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
-                AppIconImage(icon: icon, isSelected: isSelected, size: 24)
-                    .foregroundColor(isSelected ? Theme.Colors.accent : Theme.Colors.textTertiary)
-
+            VStack(spacing: 2) {
+                AppIconImage(icon: icon, isSelected: isSelected, size: 22)
                 Text(label)
                     .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? Theme.Colors.accent : Theme.Colors.textTertiary)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, Theme.Spacing.xs)
-            .contentShape(Rectangle())
+            .foregroundColor(isSelected ? Theme.Colors.accent : Theme.Colors.textTertiary)
+            .frame(width: 64)
         }
         .buttonStyle(.plain)
     }

@@ -3,18 +3,17 @@
 //  Remin
 //
 //  One Thing - Daily Voice Journal
-//  Redesigned with warm, minimal aesthetic inspired by modern wellness apps
+//  Minimal, editorial design — clean typography, subtle motion
 //
 
 import SwiftUI
 
 struct TodayView: View {
     @ObservedObject var viewModel: JournalViewModel
-    @State private var animateBackground = false
-    @State private var meshAnimationState: MeshAnimationState = .subtle
     @State private var showDiscardConfirmation = false
+    @State private var isCountingDown = false
 
-    // Active mood for gradient orbs - uses saved entry or current selection
+    // Active mood for subtle background tint
     private var activeMood: Int? {
         viewModel.todayEntry?.mood ?? viewModel.selectedMood
     }
@@ -22,42 +21,23 @@ struct TodayView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Warm cream background
+                // Base background
                 Theme.Colors.background
                     .ignoresSafeArea()
 
-                // Decorative background gradient - hidden during starting prompt for minimal focus
-                if viewModel.flowState != .startingPrompt {
-                    if #available(iOS 18.0, *) {
-                        BottomMeshGradient(mood: activeMood, animationState: meshAnimationState)
-                            .animation(.easeInOut(duration: 0.8), value: activeMood)
-                    } else {
-                        // Fallback to orbs for iOS 17
-                        GeometryReader { geo in
-                            // Top right - warm
-                            GradientOrb(size: 350, opacity: 0.50, blur: 90, mood: activeMood)
-                                .offset(x: geo.size.width * 0.5, y: -80)
-                                .scaleEffect(animateBackground ? 1.15 : 1.0)  // Enhanced from 1.1
-                                .animation(.easeInOut(duration: 8).repeatForever(autoreverses: true), value: animateBackground)
-
-                            // Bottom left - cool
-                            GradientOrb(size: 300, opacity: 0.45, blur: 80, mood: activeMood)
-                                .offset(x: -80, y: geo.size.height * 0.55)
-                                .scaleEffect(animateBackground ? 1.20 : 1.0)  // Enhanced from 1.15
-                                .animation(.easeInOut(duration: 7).repeatForever(autoreverses: true).delay(1), value: animateBackground)
-
-                            // Center floating - soft
-                            GradientOrb(size: 200, opacity: 0.35, blur: 60, mood: activeMood)
-                                .offset(x: geo.size.width * 0.2, y: geo.size.height * 0.3)
-                                .scaleEffect(animateBackground ? 1.25 : 0.85)  // Enhanced from 1.2:0.9
-                                .animation(.easeInOut(duration: 10).repeatForever(autoreverses: true).delay(2), value: animateBackground)
-                        }
-                        .animation(.easeInOut(duration: 0.6), value: activeMood)
-                        .onAppear {
-                            animateBackground = true
-                        }
-                        .ignoresSafeArea()
-                    }
+                // Subtle mood tint when mood is selected
+                if let mood = activeMood {
+                    RadialGradient(
+                        colors: [
+                            Theme.Colors.moodAccents[mood].opacity(0.06),
+                            Theme.Colors.background
+                        ],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: UIScreen.main.bounds.height * 0.5
+                    )
+                    .ignoresSafeArea()
+                    .animation(.easeInOut(duration: 0.8), value: mood)
                 }
 
                 ScrollView(showsIndicators: false) {
@@ -75,10 +55,9 @@ struct TodayView: View {
                            viewModel.flowState != .recording {
                             TodayEntryCardView(entry: todayEntry, viewModel: viewModel)
                         } else {
-                            TodayRecordingView(viewModel: viewModel, meshAnimationState: $meshAnimationState)
+                            TodayRecordingView(viewModel: viewModel, isCountingDown: $isCountingDown)
                         }
                     }
-                    .padding(.horizontal, 0)
                 }
                 .safeAreaInset(edge: .bottom) {
                     todayDock
@@ -103,13 +82,12 @@ struct TodayView: View {
 
     @ViewBuilder
     private var todayDock: some View {
-        // Only show dock during recording flow (not when viewing existing entry)
         if viewModel.todayEntry == nil || viewModel.flowState == .recording {
             switch viewModel.flowState {
             case .startingPrompt:
                 BottomActionDock {
                     Button("Start") {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        withAnimation(.easeOut(duration: 0.3)) {
                             viewModel.beginJournalingFromPrompt()
                         }
                     }
@@ -131,25 +109,34 @@ struct TodayView: View {
                 }
 
             case .recordPrompt:
-                BottomActionDock {
-                    Button("I'm ready") {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        viewModel.startRecording()
+                if !isCountingDown {
+                    BottomActionDock {
+                        Button("I'm ready") {
+                            isCountingDown = true
+                        }
+                        .buttonStyle(PrimaryDockButtonStyle())
+                    } secondary: {
+                        Button("Back") {
+                            viewModel.goBackToMoodSelection()
+                        }
+                        .buttonStyle(SecondaryDockButtonStyle())
                     }
-                    .buttonStyle(PrimaryDockButtonStyle())
-                } secondary: {
-                    Button("Back") {
-                        viewModel.goBackToMoodSelection()
-                    }
-                    .buttonStyle(SecondaryDockButtonStyle())
+                    .transition(.opacity)
                 }
 
             case .recording:
                 BottomActionDock {
-                    Button("Discard recording") {
+                    Button("Stop & try again") {
+                        viewModel.cancelRecording()
+                        isCountingDown = false
+                    }
+                    .buttonStyle(SecondaryDockButtonStyle())
+                } secondary: {
+                    Button("Discard entry") {
                         showDiscardConfirmation = true
                     }
                     .buttonStyle(SecondaryDockButtonStyle())
+                    .foregroundColor(Theme.Colors.textTertiary)
                 }
 
             case .saved:
@@ -162,7 +149,6 @@ struct TodayView: View {
             }
         }
     }
-
 
     private var formattedWeekday: String {
         let formatter = DateFormatter()
@@ -181,31 +167,28 @@ struct TodayView: View {
 
 struct TodayRecordingView: View {
     @ObservedObject var viewModel: JournalViewModel
-    @Binding var meshAnimationState: MeshAnimationState
+    @Binding var isCountingDown: Bool
 
     var body: some View {
         ZStack {
             switch viewModel.flowState {
             case .startingPrompt:
                 StartingPromptView(viewModel: viewModel)
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .bottom).combined(with: .opacity),
-                        removal: .move(edge: .bottom).combined(with: .opacity)
-                    ))
+                    .transition(.opacity)
 
             case .selectMood:
                 MoodSelectionStepView(viewModel: viewModel)
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .leading).combined(with: .opacity),
-                        removal: .move(edge: .leading).combined(with: .opacity)
-                    ))
+                    .transition(.opacity)
 
             case .recordPrompt:
-                RecordPromptStepView(viewModel: viewModel)
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .trailing).combined(with: .opacity),
-                        removal: .move(edge: .trailing).combined(with: .opacity)
-                    ))
+                RecordPromptStepView(
+                    viewModel: viewModel,
+                    isCountingDown: $isCountingDown,
+                    onCountdownComplete: {
+                        viewModel.startRecording()
+                    }
+                )
+                .transition(.opacity)
 
             case .recording:
                 RecordingStateView(viewModel: viewModel)
@@ -213,32 +196,10 @@ struct TodayRecordingView: View {
 
             case .saved:
                 SimpleSavedStateView(viewModel: viewModel)
-                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                    .transition(.opacity)
             }
         }
-        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: viewModel.flowState)
-        .onChange(of: viewModel.flowState) { _, newState in
-            // Update mesh animation state based on flow state
-            if #available(iOS 18.0, *) {
-                switch newState {
-                case .startingPrompt:
-                    meshAnimationState = .subtle
-                case .recording:
-                    meshAnimationState = .calm
-                case .selectMood, .recordPrompt, .saved:
-                    meshAnimationState = .subtle
-                }
-            }
-        }
-        .onChange(of: viewModel.selectedMood) { _, newMood in
-            // Trigger hype burst when mood selected
-            if #available(iOS 18.0, *), newMood != nil {
-                meshAnimationState = .hyped
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    meshAnimationState = .subtle
-                }
-            }
-        }
+        .animation(.easeInOut(duration: 0.35), value: viewModel.flowState)
     }
 }
 
@@ -271,24 +232,20 @@ struct StartingPromptView: View {
         VStack(spacing: Theme.Spacing.xl) {
             Spacer()
 
-            // Main prompt
-            VStack(spacing: Theme.Spacing.lg) {
-
+            VStack(spacing: Theme.Spacing.xxl) {
                 Text(greetingLine)
                     .font(Theme.Typography.displayLarge())
                     .foregroundColor(Theme.Colors.textPrimary)
                     .multilineTextAlignment(.center)
-                Spacer()
-                Spacer()
-                Text("Take a moment for yourself")
+
+                Text("Take a moment\nfor yourself")
                     .font(Theme.Typography.displayLarge())
-                    .foregroundColor(Theme.Colors.textPrimary)
+                    .foregroundColor(Theme.Colors.textSecondary)
                     .multilineTextAlignment(.center)
             }
             .lineSpacing(4)
-            .scaleEffect(hasAppeared ? 1.0 : 0.9)
             .opacity(hasAppeared ? 1.0 : 0)
-            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: hasAppeared)
+            .animation(.easeOut(duration: 0.6), value: hasAppeared)
 
             Spacer()
         }
@@ -303,59 +260,35 @@ struct StartingPromptView: View {
 
 struct MoodSelectionStepView: View {
     @ObservedObject var viewModel: JournalViewModel
-    @State private var hasAppeared = false
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
 
-            // Main question - serif typography
             Text("How does today\nfeel, overall?")
                 .font(Theme.Typography.displayLarge())
                 .foregroundColor(Theme.Colors.textPrimary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
 
-            // Horizontal mood selector with centering
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: Theme.Spacing.lg) {
-                        ForEach(0..<5) { index in
-                            MoodPill(
-                                index: index,
-                                isSelected: viewModel.selectedMood == index,
-                                action: {
-                                    UISelectionFeedbackGenerator().selectionChanged()
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                        viewModel.selectedMood = index
-                                    }
+            // Mood pills in a wrapping horizontal layout
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Theme.Spacing.sm) {
+                    ForEach(0..<5) { index in
+                        MoodPill(
+                            index: index,
+                            isSelected: viewModel.selectedMood == index,
+                            action: {
+                                UISelectionFeedbackGenerator().selectionChanged()
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    viewModel.selectedMood = index
                                 }
-                            )
-                            .id(index)
-                        }
-                    }
-                    .padding(.horizontal, Theme.Spacing.xxl)
-                    .padding(.top, Theme.Spacing.md)
-                    .padding(.bottom, Theme.Spacing.xl)
-                }
-                .onAppear {
-                    // Center on "Okay" mood (index 2) when first appearing
-                    if !hasAppeared {
-                        hasAppeared = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                                proxy.scrollTo(2, anchor: .center)
                             }
-                        }
+                        )
                     }
                 }
-                .onChange(of: viewModel.selectedMood) { _, newValue in
-                    if let selected = newValue {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                            proxy.scrollTo(selected, anchor: .center)
-                        }
-                    }
-                }
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.vertical, Theme.Spacing.md)
             }
 
             Spacer()
@@ -367,51 +300,142 @@ struct MoodSelectionStepView: View {
 
 struct RecordPromptStepView: View {
     @ObservedObject var viewModel: JournalViewModel
+    @Binding var isCountingDown: Bool
+    var onCountdownComplete: () -> Void
+
+    @State private var countdownValue = 3
+    @State private var showPromptText = true
+    @State private var countdownTimer: Timer?
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
+        ZStack {
             // Main Content
             VStack(spacing: 0) {
                 Spacer()
 
-                VStack(spacing: Theme.Spacing.md) {
-                    // Helper text
-                    Text("Just one question for today")
-                        .font(Theme.Typography.caption())
-                        .foregroundColor(Theme.Colors.textTertiary)
-                        .textCase(.uppercase)
-                        .tracking(1.0)
+                Text("Let's record\ntoday's note")
+                    .font(Theme.Typography.displayLarge())
+                    .foregroundColor(Theme.Colors.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .opacity(showPromptText ? 1.0 : 0.0)
 
-                    // Daily prompt
-                    Text(viewModel.dailyPrompt)
-                        .font(Theme.Typography.displayLarge())
-                        .foregroundColor(Theme.Colors.textPrimary)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.horizontal, Theme.Spacing.lg)
+                Spacer()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.top, Theme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.lg)
+
+            // Countdown overlay
+            if isCountingDown && !showPromptText {
+                CountdownNumberView(value: countdownValue)
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isCountingDown {
+                cancelCountdown()
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: showPromptText)
+        .animation(.easeOut(duration: 0.3), value: countdownValue)
+        .onChange(of: isCountingDown) { _, newValue in
+            if newValue {
+                startCountdown()
+            } else {
+                cancelCountdown()
+            }
+        }
+        .onDisappear {
+            cancelCountdown()
+        }
+    }
+
+    private func startCountdown() {
+        countdownValue = 3
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+        withAnimation(.easeOut(duration: 0.25)) {
+            showPromptText = false
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            guard isCountingDown else { return }
+            runCountdownTimer()
+        }
+    }
+
+    private func runCountdownTimer() {
+        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            if countdownValue > 1 {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                countdownValue -= 1
+            } else {
+                timer.invalidate()
+                countdownTimer = nil
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                onCountdownComplete()
+            }
+        }
+    }
+
+    private func cancelCountdown() {
+        countdownTimer?.invalidate()
+        countdownTimer = nil
+        countdownValue = 3
+        isCountingDown = false
+        withAnimation(.easeOut(duration: 0.2)) {
+            showPromptText = true
         }
     }
 }
 
-// MARK: - Recording State (Active recording)
+// MARK: - Countdown Number View
+
+struct CountdownNumberView: View {
+    let value: Int
+
+    @State private var scale: CGFloat = 0.5
+    @State private var opacity: Double = 0
+
+    var body: some View {
+        Text("\(value)")
+            .font(.system(size: 96, weight: .ultraLight, design: .monospaced))
+            .foregroundColor(Theme.Colors.textPrimary)
+            .scaleEffect(scale)
+            .opacity(opacity)
+            .onAppear {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
+                    scale = 1.0
+                    opacity = 1.0
+                }
+            }
+            .onChange(of: value) { _, _ in
+                withAnimation(.easeIn(duration: 0.1)) {
+                    scale = 0.85
+                    opacity = 0.5
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        scale = 1.0
+                        opacity = 1.0
+                    }
+                }
+            }
+    }
+}
+
+// MARK: - Recording State
 
 struct RecordingStateView: View {
     @ObservedObject var viewModel: JournalViewModel
-    @State private var pulseAnimation = false
 
     var body: some View {
         VStack(spacing: Theme.Spacing.xl) {
-            // Recording label
-            Text("Recording")
-                .font(Theme.Typography.subheadline())
-                .foregroundColor(Theme.Colors.textSecondary)
-                .textCase(.uppercase)
-                .tracking(1.5)
+            Spacer()
+
+            // Breathing circle animation
+            BreathingCircle(size: 160, color: Theme.Colors.accent)
 
             // Timer display
             Text(viewModel.formattedRecordingTime())
@@ -419,97 +443,43 @@ struct RecordingStateView: View {
                 .foregroundColor(Theme.Colors.textPrimary)
                 .monospacedDigit()
 
-            // Animated waveform visualization
-            WaveformVisualization()
-                .frame(height: 60)
-                .padding(.vertical, Theme.Spacing.md)
+            // Recording label
+            Text("Recording")
+                .font(Theme.Typography.captionMedium())
+                .foregroundColor(Theme.Colors.textSecondary)
+                .textCase(.uppercase)
+                .tracking(1.5)
 
-            // Pulsing recording indicator
-            ZStack {
-                // Pulse rings
-                Circle()
-                    .stroke(Theme.Colors.accent.opacity(0.2), lineWidth: 2)
-                    .frame(width: 100, height: 100)
-                    .scaleEffect(pulseAnimation ? 1.3 : 1.0)
-                    .opacity(pulseAnimation ? 0 : 0.5)
+            Spacer()
 
-                Circle()
-                    .stroke(Theme.Colors.accent.opacity(0.15), lineWidth: 2)
-                    .frame(width: 100, height: 100)
-                    .scaleEffect(pulseAnimation ? 1.6 : 1.0)
-                    .opacity(pulseAnimation ? 0 : 0.3)
+            // Stop button
+            Button(action: {
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                viewModel.stopRecording()
+            }) {
+                ZStack {
+                    Circle()
+                        .fill(Theme.Colors.accent)
+                        .frame(width: 64, height: 64)
 
-                // Stop button
-                Button(action: {
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    viewModel.stopRecording()
-                }) {
-                    ZStack {
-                        Circle()
-                            .fill(Theme.Colors.accent)
-                            .frame(width: 80, height: 80)
-
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.white)
-                            .frame(width: 24, height: 24)
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Stop recording")
-                .accessibilityHint("Double tap to stop recording")
-            }
-            .onAppear {
-                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: false)) {
-                    pulseAnimation = true
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.white)
+                        .frame(width: 20, height: 20)
                 }
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Stop recording")
 
             Text("Tap to stop")
                 .font(Theme.Typography.caption())
                 .foregroundColor(Theme.Colors.textTertiary)
+
+            Spacer()
         }
     }
 }
 
-// MARK: - Waveform Visualization
-
-struct WaveformVisualization: View {
-    @State private var animate = false
-
-    var body: some View {
-        HStack(spacing: 4) {
-            ForEach(0..<12, id: \.self) { index in
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Theme.Colors.accentSoft,
-                                Theme.Colors.accent.opacity(0.6)
-                            ],
-                            startPoint: .bottom,
-                            endPoint: .top
-                        )
-                    )
-                    .frame(width: 4, height: barHeight(for: index))
-                    .animation(
-                        .easeInOut(duration: 0.4 + Double(index % 3) * 0.1)
-                        .repeatForever(autoreverses: true)
-                        .delay(Double(index) * 0.05),
-                        value: animate
-                    )
-            }
-        }
-        .onAppear { animate = true }
-    }
-
-    private func barHeight(for index: Int) -> CGFloat {
-        let baseHeight: CGFloat = 20
-        let variation: CGFloat = animate ? CGFloat.random(in: 15...40) : 20
-        return variation
-    }
-}
-
-// MARK: - Saved State (Rich playback + transcript per plan)
+// MARK: - Saved State
 
 struct SimpleSavedStateView: View {
     @ObservedObject var viewModel: JournalViewModel
@@ -523,19 +493,17 @@ struct SimpleSavedStateView: View {
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
-            // Title
             Text("Saved for today")
                 .font(Theme.Typography.displaySmall())
                 .foregroundColor(Theme.Colors.textPrimary)
 
-            // Main card
             SoftCard {
                 VStack(spacing: Theme.Spacing.lg) {
                     // Audio playback
                     AudioPlaybackView(isPlaying: $isPlaying, progress: $playbackProgress)
 
                     Divider()
-                        .background(Theme.Colors.textTertiary.opacity(0.2))
+                        .foregroundColor(Theme.Colors.border)
 
                     // Transcript preview
                     if let entry = savedEntry {
@@ -558,27 +526,25 @@ struct SimpleSavedStateView: View {
                             }
                         }
 
-                        // Small note
                         Text("Transcript saved automatically")
                             .font(Theme.Typography.caption())
                             .foregroundColor(Theme.Colors.textTertiary)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                         Divider()
-                            .background(Theme.Colors.textTertiary.opacity(0.2))
+                            .foregroundColor(Theme.Colors.border)
 
                         // Metadata: mood + date
                         HStack {
-                            HStack(spacing: Theme.Spacing.sm) {
-                                AppIconImage(icon: entry.moodAppIcon, isSelected: true, size: 16)
-                                Text(entry.moodLabel)
-                                    .font(Theme.Typography.caption())
-                            }
-                            .foregroundColor(Theme.Colors.textSecondary)
-                            .padding(.horizontal, Theme.Spacing.md)
-                            .padding(.vertical, Theme.Spacing.sm)
-                            .background(Theme.Colors.accentSoft.opacity(0.2))
-                            .clipShape(Capsule())
+                            Text(entry.moodLabel)
+                                .font(Theme.Typography.captionMedium())
+                                .foregroundColor(Theme.Colors.moodAccents[entry.mood])
+                                .padding(.horizontal, Theme.Spacing.md)
+                                .padding(.vertical, Theme.Spacing.xs + 2)
+                                .background(
+                                    Capsule()
+                                        .fill(Theme.Colors.moodAccentBackground(for: entry.mood))
+                                )
 
                             Spacer()
 
@@ -587,7 +553,6 @@ struct SimpleSavedStateView: View {
                                 .foregroundColor(Theme.Colors.textTertiary)
                         }
                     } else {
-                        // Fallback if entry not yet available
                         Text("Your entry has been saved.")
                             .font(Theme.Typography.body())
                             .foregroundColor(Theme.Colors.textSecondary)
@@ -628,7 +593,7 @@ struct TodayEntryCardView: View {
                     AudioPlaybackView(isPlaying: $isPlaying, progress: $playbackProgress)
 
                     Divider()
-                        .background(Theme.Colors.textTertiary.opacity(0.2))
+                        .foregroundColor(Theme.Colors.border)
 
                     // Transcript
                     Text(entry.transcript)
@@ -639,17 +604,15 @@ struct TodayEntryCardView: View {
 
                     // Mood and time
                     HStack {
-                        // Mood indicator
-                        HStack(spacing: Theme.Spacing.sm) {
-                            AppIconImage(icon: entry.moodAppIcon, isSelected: true, size: 16)
-                            Text(entry.moodLabel)
-                                .font(Theme.Typography.caption())
-                        }
-                        .foregroundColor(Theme.Colors.textSecondary)
-                        .padding(.horizontal, Theme.Spacing.md)
-                        .padding(.vertical, Theme.Spacing.sm)
-                        .background(Theme.Colors.accentSoft.opacity(0.2))
-                        .clipShape(Capsule())
+                        Text(entry.moodLabel)
+                            .font(Theme.Typography.captionMedium())
+                            .foregroundColor(Theme.Colors.moodAccents[entry.mood])
+                            .padding(.horizontal, Theme.Spacing.md)
+                            .padding(.vertical, Theme.Spacing.xs + 2)
+                            .background(
+                                Capsule()
+                                    .fill(Theme.Colors.moodAccentBackground(for: entry.mood))
+                            )
 
                         Spacer()
 
@@ -680,7 +643,7 @@ struct AudioPlaybackView: View {
                             .fill(
                                 Double(index) / 30.0 < progress
                                 ? Theme.Colors.accent
-                                : Theme.Colors.accentSoft.opacity(0.4)
+                                : Theme.Colors.border
                             )
                             .frame(width: (geo.size.width - 58) / 30, height: CGFloat.random(in: 8...24))
                     }
@@ -717,23 +680,7 @@ struct AudioPlaybackView: View {
 #Preview("Today - Mood Selection") {
     let vm = JournalViewModel()
     vm.hasCompletedOnboarding = true
-    // Remove today's entry to show mood selection state
     vm.entries.removeAll { $0.isToday }
-    return TodayView(viewModel: vm)
-}
-
-#Preview("Today - Record Prompt") {
-    let vm = JournalViewModel()
-    vm.hasCompletedOnboarding = true
-    vm.entries.removeAll { $0.isToday }
-    vm.selectedMood = 3
-    vm.flowState = .recordPrompt
-    return TodayView(viewModel: vm)
-}
-
-#Preview("Today - With Entry") {
-    let vm = JournalViewModel()
-    vm.hasCompletedOnboarding = true
     return TodayView(viewModel: vm)
 }
 
@@ -742,5 +689,11 @@ struct AudioPlaybackView: View {
     vm.hasCompletedOnboarding = true
     vm.entries.removeAll { $0.isToday }
     vm.flowState = .startingPrompt
+    return TodayView(viewModel: vm)
+}
+
+#Preview("Today - With Entry") {
+    let vm = JournalViewModel()
+    vm.hasCompletedOnboarding = true
     return TodayView(viewModel: vm)
 }

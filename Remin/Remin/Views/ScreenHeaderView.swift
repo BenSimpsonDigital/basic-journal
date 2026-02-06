@@ -41,8 +41,8 @@ struct ScreenHeaderView: View {
                 }
             }
         }
-        .padding(.top, Theme.Spacing.lg)
-        .padding(.bottom, Theme.Spacing.md)
+        .padding(.top, Theme.Spacing.xl)
+        .padding(.bottom, Theme.Spacing.lg)
         .padding(.horizontal, Theme.Spacing.lg)
     }
     

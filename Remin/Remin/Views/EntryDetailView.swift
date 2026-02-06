@@ -3,7 +3,7 @@
 //  Remin
 //
 //  One Thing - Daily Voice Journal
-//  Full entry view with elegant playback and mood editing
+//  Clean entry detail with border-based cards
 //
 
 import SwiftUI
@@ -26,21 +26,12 @@ struct EntryDetailView: View {
 
     var body: some View {
         ZStack {
-            // Background
             Theme.Colors.background
                 .ignoresSafeArea()
 
-            // Decorative gradient (responds to mood)
-            GeometryReader { geo in
-                GradientOrb(size: 250, opacity: 0.45, blur: 90, mood: selectedMood)
-                    .offset(x: geo.size.width * 0.6, y: -80)
-            }
-            .animation(.easeInOut(duration: 0.6), value: selectedMood)
-            .ignoresSafeArea()
-
             ScrollView(showsIndicators: false) {
                 VStack(spacing: Theme.Spacing.xl) {
-                    // Date header - elegant serif
+                    // Date header
                     VStack(spacing: Theme.Spacing.xs) {
                         Text(entry.relativeDateString)
                             .font(Theme.Typography.displayMedium())
@@ -77,7 +68,10 @@ struct EntryDetailView: View {
                     .padding(Theme.Spacing.lg)
                     .background(Theme.Colors.card)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.large))
-                    .shadow(color: .black.opacity(0.03), radius: 12, x: 0, y: 4)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.Radius.large)
+                            .strokeBorder(Theme.Colors.border, lineWidth: 1)
+                    )
 
                     // Mood selector
                     VStack(alignment: .leading, spacing: Theme.Spacing.md) {
@@ -89,7 +83,7 @@ struct EntryDetailView: View {
                         .foregroundColor(Theme.Colors.textTertiary)
 
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: Theme.Spacing.md) {
+                            HStack(spacing: Theme.Spacing.sm) {
                                 ForEach(0..<5) { index in
                                     MoodPill(
                                         index: index,
@@ -157,7 +151,7 @@ struct DetailAudioPlayerCard: View {
                             .fill(
                                 Double(index) / 35.0 < progress
                                 ? Theme.Colors.accent
-                                : Theme.Colors.accentSoft.opacity(0.5)
+                                : Theme.Colors.border
                             )
                             .frame(
                                 width: (geo.size.width - 102) / 35,
@@ -173,7 +167,7 @@ struct DetailAudioPlayerCard: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Theme.Colors.accentSoft.opacity(0.3))
+                        .fill(Theme.Colors.border)
                         .frame(height: 4)
 
                     Capsule()
@@ -192,7 +186,6 @@ struct DetailAudioPlayerCard: View {
 
                 Spacer()
 
-                // Skip back
                 Button(action: { progress = max(0, progress - 0.1) }) {
                     Image(systemName: "gobackward.15")
                         .font(.system(size: 20, weight: .medium))
@@ -201,7 +194,6 @@ struct DetailAudioPlayerCard: View {
 
                 Spacer()
 
-                // Play/Pause
                 Button(action: { isPlaying.toggle() }) {
                     ZStack {
                         Circle()
@@ -217,7 +209,6 @@ struct DetailAudioPlayerCard: View {
 
                 Spacer()
 
-                // Skip forward
                 Button(action: { progress = min(1, progress + 0.1) }) {
                     Image(systemName: "goforward.15")
                         .font(.system(size: 20, weight: .medium))
@@ -235,11 +226,13 @@ struct DetailAudioPlayerCard: View {
         .padding(Theme.Spacing.lg)
         .background(Theme.Colors.card)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.large))
-        .shadow(color: .black.opacity(0.04), radius: 12, x: 0, y: 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.large)
+                .strokeBorder(Theme.Colors.border, lineWidth: 1)
+        )
     }
 
     private func waveformHeight(for index: Int) -> CGFloat {
-        // Create a wave-like pattern
         let pattern: [CGFloat] = [12, 18, 24, 32, 28, 20, 14, 22, 30, 26, 16, 12, 20, 28, 24]
         return pattern[index % pattern.count]
     }

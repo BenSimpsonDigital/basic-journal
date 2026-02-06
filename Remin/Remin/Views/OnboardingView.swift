@@ -3,7 +3,7 @@
 //  Remin
 //
 //  One Thing - Daily Voice Journal
-//  Elegant onboarding with soft gradients and serif typography
+//  Editorial onboarding — clean typography, minimal geometric accents
 //
 
 import SwiftUI
@@ -18,21 +18,8 @@ struct OnboardingView: View {
 
     var body: some View {
         ZStack {
-            // Background
             Theme.Colors.background
                 .ignoresSafeArea()
-
-            // Decorative gradient orbs
-            GeometryReader { geo in
-                // Top-right orb
-                GradientOrb(size: 350, opacity: 0.5, blur: 100)
-                    .offset(x: geo.size.width * 0.5, y: -100)
-
-                // Bottom-left orb
-                GradientOrb(size: 280, opacity: 0.4, blur: 90)
-                    .offset(x: -80, y: geo.size.height * 0.6)
-            }
-            .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Spacer()
@@ -42,14 +29,14 @@ struct OnboardingView: View {
                     OnboardingPageView(
                         title: "One moment,\neach day",
                         subtitle: "Capture a quick voice note about your day.\nNo pressure, no structure.",
-                        showOrb: true
+                        icon: .microphone
                     )
                     .tag(0)
 
                     OnboardingPageView(
                         title: "Your words,\npreserved",
                         subtitle: "Your recordings are transcribed and saved\nprivately on your device.",
-                        showOrb: true
+                        icon: .shieldCheck
                     )
                     .tag(1)
 
@@ -76,9 +63,9 @@ struct OnboardingView: View {
                         Capsule()
                             .fill(currentPage == index
                                   ? Theme.Colors.accent
-                                  : Theme.Colors.textTertiary.opacity(0.3))
+                                  : Theme.Colors.border)
                             .frame(width: currentPage == index ? 24 : 8, height: 8)
-                            .animation(.spring(response: 0.3), value: currentPage)
+                            .animation(.easeOut(duration: 0.25), value: currentPage)
                     }
                 }
                 .padding(.bottom, Theme.Spacing.lg)
@@ -87,7 +74,7 @@ struct OnboardingView: View {
                 BottomActionDock {
                     Button(currentPage < totalPages - 1 ? "Continue" : "Get Started") {
                         if currentPage < totalPages - 1 {
-                            withAnimation(.spring(response: 0.4)) {
+                            withAnimation(.easeOut(duration: 0.3)) {
                                 currentPage += 1
                             }
                         } else {
@@ -117,53 +104,36 @@ struct OnboardingView: View {
 struct OnboardingPageView: View {
     let title: String
     let subtitle: String
-    var showOrb: Bool = false
+    var icon: AppIcon? = nil
     var showMoodSelector: Bool = false
 
     @State private var selectedMoodPreview: Int? = 3
 
     var body: some View {
         VStack(spacing: Theme.Spacing.xl) {
-            // Visual element
-            if showOrb {
-                AnimatedGradientOrb(size: 140)
-                    .padding(.bottom, Theme.Spacing.lg)
+            // Icon or mood selector
+            if let icon = icon {
+                AppIconImage(icon: icon, isSelected: false, size: 32)
+                    .foregroundColor(Theme.Colors.textTertiary)
+                    .padding(.bottom, Theme.Spacing.md)
             } else if showMoodSelector {
-                // Preview mood selector
-                ScrollViewReader { proxy in
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: Theme.Spacing.md) {
-                            ForEach(0..<5) { index in
-                                MoodPill(
-                                    index: index,
-                                    isSelected: selectedMoodPreview == index,
-                                    action: {
-                                        selectedMoodPreview = index
-                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                            proxy.scrollTo(index, anchor: .center)
-                                        }
-                                    }
-                                )
-                                .id(index)
-                            }
-                        }
-                        .padding(.horizontal, Theme.Spacing.lg)
-                        .padding(.vertical, 24) // Add vertical breathing room for scale/shadow
-                    }
-                    .padding(.bottom, Theme.Spacing.sm)
-                    .onAppear {
-                        if let selected = selectedMoodPreview {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                                    proxy.scrollTo(selected, anchor: .center)
+                HStack(spacing: Theme.Spacing.sm) {
+                    ForEach(0..<5) { index in
+                        MoodPill(
+                            index: index,
+                            isSelected: selectedMoodPreview == index,
+                            action: {
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    selectedMoodPreview = index
                                 }
                             }
-                        }
+                        )
                     }
                 }
+                .padding(.bottom, Theme.Spacing.md)
             }
 
-            // Title - elegant serif
+            // Title
             Text(title)
                 .font(Theme.Typography.displayLarge())
                 .foregroundColor(Theme.Colors.textPrimary)
@@ -179,7 +149,6 @@ struct OnboardingPageView: View {
                 .lineSpacing(4)
                 .padding(.horizontal, Theme.Spacing.lg)
         }
-        // Container padding removed to allow scrollview to hit edges
     }
 }
 
@@ -191,7 +160,10 @@ struct OnboardingNamePageView: View {
 
     var body: some View {
         VStack(spacing: Theme.Spacing.xl) {
-            // Title
+            AppIconImage(icon: .user, isSelected: false, size: 32)
+                .foregroundColor(Theme.Colors.textTertiary)
+                .padding(.bottom, Theme.Spacing.md)
+
             Text("What should\nwe call you?")
                 .font(Theme.Typography.displayLarge())
                 .foregroundColor(Theme.Colors.textPrimary)
@@ -199,7 +171,6 @@ struct OnboardingNamePageView: View {
                 .lineSpacing(4)
                 .padding(.horizontal, Theme.Spacing.lg)
 
-            // Subtitle
             Text("This is just for your greeting.\nYou can change it later in Settings.")
                 .font(Theme.Typography.body())
                 .foregroundColor(Theme.Colors.textSecondary)
@@ -214,9 +185,12 @@ struct OnboardingNamePageView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Theme.Spacing.lg)
                 .padding(.vertical, Theme.Spacing.md)
-                .background(Theme.Colors.card)
+                .background(Theme.Colors.surface)
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.medium))
-                .shadow(color: .black.opacity(0.03), radius: 10, x: 0, y: 3)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.Radius.medium)
+                        .strokeBorder(Theme.Colors.border, lineWidth: 1)
+                )
                 .padding(.horizontal, Theme.Spacing.xxl)
                 .focused(isNameFieldFocused)
                 .textContentType(.givenName)

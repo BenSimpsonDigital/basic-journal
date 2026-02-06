@@ -35,33 +35,12 @@ extension Entry {
     /// Mood labels for accessibility and display
     static let moodLabels = ["Low", "Down", "Okay", "Happy", "Amazing"]
 
-    /// Mood colors - soft, calming palette
-    static let moodColors: [String] = [
-        "MoodLow",      // Soft blue-gray
-        "MoodDown",     // Soft blue
-        "MoodOkay",     // Soft neutral
-        "MoodGood",     // Soft warm
-        "MoodGreat"     // Soft gold
-    ]
-
     var moodIcon: String {
         Entry.moodIcons[mood]
     }
 
     var moodLabel: String {
         Entry.moodLabels[mood]
-    }
-
-    /// Mood icon using AppIcon enum for heroicons
-    var moodAppIcon: AppIcon {
-        switch mood {
-        case 0: return .cloud   // Low - cloud for rain/gloom
-        case 1: return .cloud   // Down - cloud
-        case 2: return .sun     // Okay - sun with haze
-        case 3: return .sun     // Good - bright sun
-        case 4: return .sparkles // Great - sparkles
-        default: return .sun
-        }
     }
 }
 
