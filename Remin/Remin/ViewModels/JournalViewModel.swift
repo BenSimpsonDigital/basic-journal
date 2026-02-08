@@ -13,9 +13,8 @@ import AVFoundation
 
 /// Flow state for the journal entry process
 enum JournalFlowState: Equatable {
-    case startingPrompt  // Initial prompt before mood selection
-    case selectMood      // Step 1: Mood selection
-    case recordPrompt    // Step 2: Ready to record with prompt
+    case startingPrompt  // Greeting + suggested prompt (once per day)
+    case recordPrompt    // Ready to record
     case recording       // Recording in progress
     case saved           // Recording complete
 }
@@ -38,14 +37,11 @@ class JournalViewModel: ObservableObject {
         didSet { UserDefaults.standard.set(userName, forKey: "userName") }
     }
 
-    /// Current flow state for Today screen (two-step journal entry)
-    @Published var flowState: JournalFlowState = .selectMood
+    /// Current flow state for Today screen
+    @Published var flowState: JournalFlowState = .recordPrompt
 
     /// Elapsed recording time in seconds (for timer display)
     @Published var recordingSeconds: Int = 0
-
-    /// Currently selected mood for new recording (nil = not selected)
-    @Published var selectedMood: Int? = nil
 
     /// Target date for the new entry (for creating past entries from calendar)
     @Published var pendingEntryDate: Date = Date()
@@ -241,7 +237,6 @@ class JournalViewModel: ObservableObject {
                 id: pendingEntryID ?? UUID(),
                 date: pendingEntryDate,
                 transcript: "Transcribing...",
-                mood: selectedMood ?? 2,
                 hasAudio: true
             )
             entries.insert(newEntry, at: 0)
@@ -265,11 +260,10 @@ class JournalViewModel: ObservableObject {
         }
     }
 
-    /// Reset flow state to initial mood selection
+    /// Reset flow state to initial record prompt
     func resetRecording() {
-        flowState = .selectMood
+        flowState = .recordPrompt
         recordingSeconds = 0
-        selectedMood = nil
         pendingEntryDate = Date()
         pendingEntryID = nil
         cancellables.removeAll()
@@ -283,12 +277,6 @@ class JournalViewModel: ObservableObject {
         recordingSeconds = 0
         pendingEntryID = nil
         cancellables.removeAll()
-        flowState = .recordPrompt
-    }
-
-    /// Advance from mood selection to recording prompt (Step 1 → Step 2)
-    func advanceToRecordPrompt() {
-        loadDailyPrompt()
         flowState = .recordPrompt
     }
 
@@ -316,23 +304,9 @@ class JournalViewModel: ObservableObject {
         }
     }
 
-    /// Go back from recording prompt to mood selection (Step 2 → Step 1)
-    func goBackToMoodSelection() {
-        flowState = .selectMood
-    }
-
     /// Complete the entry and reset flow
     func completeEntry() {
         resetRecording()
-    }
-
-    // MARK: - Entry Actions
-
-    /// Update mood for an entry
-    func updateMood(for entry: Entry, to mood: Int) {
-        if let index = entries.firstIndex(where: { $0.id == entry.id }) {
-            entries[index].mood = mood
-        }
     }
 
     /// Delete an entry
@@ -362,11 +336,12 @@ class JournalViewModel: ObservableObject {
         persistStartingPromptState()
     }
 
-    /// Begin journaling from starting prompt (transition to mood selection)
+    /// Begin journaling from starting prompt (start recording immediately)
     func beginJournalingFromPrompt() {
         hasSeenStartingPromptToday = true
         persistStartingPromptState()
-        flowState = .selectMood
+        pendingEntryDate = Date()
+        startRecording()
     }
 
     /// Check and reset daily prompt state if a new day has started
@@ -378,6 +353,7 @@ class JournalViewModel: ObservableObject {
             hasSeenStartingPromptToday = false
             lastPromptDate = today
             UserDefaults.standard.set(false, forKey: "hasSeenStartingPromptToday")
+            loadDailyPrompt()
         }
     }
 
@@ -397,7 +373,7 @@ class JournalViewModel: ObservableObject {
     /// Start a new entry for a specific date (past or today)
     func startEntryForDate(_ date: Date) {
         pendingEntryDate = date
-        flowState = .selectMood
+        flowState = .recordPrompt
     }
 
     // MARK: - Helpers

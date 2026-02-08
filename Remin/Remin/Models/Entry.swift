@@ -14,33 +14,13 @@ struct Entry: Identifiable, Equatable {
     let id: UUID
     var date: Date
     var transcript: String
-    var mood: Int // 0-4 representing different moods
     var hasAudio: Bool
 
-    init(id: UUID = UUID(), date: Date, transcript: String, mood: Int, hasAudio: Bool = true) {
+    init(id: UUID = UUID(), date: Date, transcript: String, hasAudio: Bool = true) {
         self.id = id
         self.date = date
         self.transcript = transcript
-        self.mood = min(max(mood, 0), 4) // Clamp to valid range
         self.hasAudio = hasAudio
-    }
-}
-
-// MARK: - Mood Helpers
-
-extension Entry {
-    /// Mood icons using SF Symbols for a calm, minimal aesthetic (legacy)
-    static let moodIcons = ["cloud.rain", "cloud", "sun.haze", "sun.max", "sparkles"]
-
-    /// Mood labels for accessibility and display
-    static let moodLabels = ["Low", "Down", "Okay", "Happy", "Amazing"]
-
-    var moodIcon: String {
-        Entry.moodIcons[mood]
-    }
-
-    var moodLabel: String {
-        Entry.moodLabels[mood]
     }
 }
 
@@ -71,8 +51,6 @@ extension Entry {
             "Just a regular day. Nothing remarkable but nothing bad either."
         ]
 
-        let moods = [1, 0, 3, 2, 4, 1, 3, 3, 3, 4, 4, 3, 1, 3, 2]
-
         var entries: [Entry] = []
 
         // Create entries for various days in the past 2 weeks
@@ -87,7 +65,6 @@ extension Entry {
                 let entry = Entry(
                     date: adjustedDate,
                     transcript: transcripts[index % transcripts.count],
-                    mood: moods[index % moods.count],
                     hasAudio: true
                 )
                 entries.append(entry)

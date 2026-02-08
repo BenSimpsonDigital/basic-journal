@@ -1,0 +1,159 @@
+{
+  "" : {
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Remin-primary.dia",
+    "emit-module-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Remin-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Remin-primary-emit-module.dia",
+    "pch" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Remin-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Remin-primary.swiftdeps"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/ContentView.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Models/Entry.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Entry.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Entry.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Entry.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Entry.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Entry.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Entry.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Entry.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Entry~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/ReminApp.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ReminApp.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ReminApp.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ReminApp.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ReminApp.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ReminApp.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ReminApp.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ReminApp.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ReminApp~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Services/AudioRecordingService.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/AudioRecordingService.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/AudioRecordingService.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/AudioRecordingService.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/AudioRecordingService.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/AudioRecordingService.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/AudioRecordingService.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/AudioRecordingService.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/AudioRecordingService~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Services/TranscriptionService.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TranscriptionService.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TranscriptionService.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TranscriptionService.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TranscriptionService.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TranscriptionService.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TranscriptionService.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TranscriptionService.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TranscriptionService~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/ViewModels/JournalViewModel.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalViewModel.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalViewModel.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalViewModel.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalViewModel.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalViewModel.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalViewModel.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalViewModel.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalViewModel~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/CalendarView.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/CalendarView.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/CalendarView.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/CalendarView.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/CalendarView.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/CalendarView.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/CalendarView.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/CalendarView.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/CalendarView~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/EntryDetailView.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/EntryDetailView.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/EntryDetailView.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/EntryDetailView.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/EntryDetailView.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/EntryDetailView.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/EntryDetailView.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/EntryDetailView.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/EntryDetailView~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/JournalView.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalView.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalView.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalView.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalView.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalView.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalView.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalView.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/JournalView~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/OnboardingView.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/OnboardingView.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/OnboardingView.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/OnboardingView.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/OnboardingView.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/OnboardingView.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/OnboardingView.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/OnboardingView.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/OnboardingView~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/ScreenHeaderView.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ScreenHeaderView.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ScreenHeaderView.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ScreenHeaderView.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ScreenHeaderView.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ScreenHeaderView.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ScreenHeaderView.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ScreenHeaderView.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/ScreenHeaderView~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/SettingsView.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/SettingsView.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/SettingsView.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/SettingsView~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/Theme.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Theme.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Theme.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Theme.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Theme.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Theme.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Theme.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Theme.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/Theme~partial.swiftmodule"
+  },
+  "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/TodayView.swift" : {
+    "const-values" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TodayView.swiftconstvalues",
+    "dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TodayView.d",
+    "diagnostics" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TodayView.dia",
+    "index-unit-output-path" : "/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TodayView.o",
+    "llvm-bc" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TodayView.bc",
+    "object" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TodayView.o",
+    "swift-dependencies" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TodayView.swiftdeps",
+    "swiftmodule" : "/Users/bensimpson/Documents/Projects/basic-journal/Remin/.build/DerivedData/Build/Intermediates.noindex/BasicJournal.build/Debug-iphonesimulator/Remin.build/Objects-normal/arm64/TodayView~partial.swiftmodule"
+  }
+}

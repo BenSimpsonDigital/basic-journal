@@ -1,0 +1,56 @@
+{
+  "source": "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/JournalView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 106
+        }
+      },
+      {
+        "comment": "",
+        "key": "No entries yet",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 220
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your journal entries will appear here",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 224
+        }
+      },
+      {
+        "comment": "",
+        "key": "Search your entries...",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 244
+        }
+      },
+      {
+        "comment": "",
+        "key": "No results",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 280
+        }
+      },
+      {
+        "comment": "",
+        "key": "No entries match \"%@\"",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 284
+        }
+      }
+    ]
+  },
+  "version": 1
+}

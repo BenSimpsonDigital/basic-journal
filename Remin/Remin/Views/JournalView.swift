@@ -141,22 +141,10 @@ struct JournalEntryRow: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
-            // Mood accent bar
-            RoundedRectangle(cornerRadius: 2)
-                .fill(Theme.Colors.moodAccents[entry.mood])
-                .frame(width: 3, height: 40)
-
-            // Content
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                HStack(spacing: Theme.Spacing.sm) {
-                    Text(entry.formattedTime)
-                        .font(Theme.Typography.caption())
-                        .foregroundColor(Theme.Colors.textTertiary)
-
-                    Text(entry.moodLabel)
-                        .font(Theme.Typography.caption())
-                        .foregroundColor(Theme.Colors.moodAccents[entry.mood])
-                }
+                Text(entry.formattedTime)
+                    .font(Theme.Typography.caption())
+                    .foregroundColor(Theme.Colors.textTertiary)
 
                 if let query = highlightQuery {
                     SearchHighlightedText(text: entry.transcript, highlight: query)
@@ -198,7 +186,7 @@ struct JournalSectionHeader: View {
                 .font(Theme.Typography.captionMedium())
                 .foregroundColor(Theme.Colors.textSecondary)
                 .textCase(.uppercase)
-                .tracking(0.8)
+                .tracking(1.2)
             Spacer()
         }
         .padding(.vertical, Theme.Spacing.md)

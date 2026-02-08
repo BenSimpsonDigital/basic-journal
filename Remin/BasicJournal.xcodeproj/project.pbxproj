@@ -6,13 +6,33 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D8D4917A2F36AD1B00AF5B36 /* InstrumentSerif-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D491782F36AD1B00AF5B36 /* InstrumentSerif-Italic.ttf */; };
+		D8D4917B2F36AD1B00AF5B36 /* InstrumentSerif-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8D491792F36AD1B00AF5B36 /* InstrumentSerif-Regular.ttf */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		D85CC8342F25E00B008AD07B /* Remin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Remin.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8D491782F36AD1B00AF5B36 /* InstrumentSerif-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "InstrumentSerif-Italic.ttf"; sourceTree = "<group>"; };
+		D8D491792F36AD1B00AF5B36 /* InstrumentSerif-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "InstrumentSerif-Regular.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D8D491A22F36CE0A00AF5B36 /* Exceptions for "Remin" folder in "Remin" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D85CC8332F25E00B008AD07B /* Remin */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D85CC8362F25E00B008AD07B /* Remin */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D8D491A22F36CE0A00AF5B36 /* Exceptions for "Remin" folder in "Remin" target */,
+			);
 			path = Remin;
 			sourceTree = "<group>";
 		};
@@ -32,6 +52,8 @@
 		D85CC82B2F25E00B008AD07B = {
 			isa = PBXGroup;
 			children = (
+				D8D491782F36AD1B00AF5B36 /* InstrumentSerif-Italic.ttf */,
+				D8D491792F36AD1B00AF5B36 /* InstrumentSerif-Regular.ttf */,
 				D85CC8362F25E00B008AD07B /* Remin */,
 				D85CC8352F25E00B008AD07B /* Products */,
 			);
@@ -78,7 +100,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2620;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					D85CC8332F25E00B008AD07B = {
 						CreatedOnToolsVersion = 26.2;
@@ -109,6 +131,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8D4917A2F36AD1B00AF5B36 /* InstrumentSerif-Italic.ttf in Resources */,
+				D8D4917B2F36AD1B00AF5B36 /* InstrumentSerif-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,6 +208,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -241,6 +266,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -256,7 +282,10 @@
 				DEVELOPMENT_TEAM = NRYT33FKAS;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Remin/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Remin;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_UIAppFonts = "InstrumentSerif-Regular.ttf InstrumentSerif-Italic.ttf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -289,7 +318,10 @@
 				DEVELOPMENT_TEAM = NRYT33FKAS;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Remin/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Remin;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_UIAppFonts = "InstrumentSerif-Regular.ttf InstrumentSerif-Italic.ttf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

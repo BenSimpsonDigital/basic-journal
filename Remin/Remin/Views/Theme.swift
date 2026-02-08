@@ -34,7 +34,6 @@ enum AppIcon: String {
     case pause = "heroicon-pause"
     case pauseCircle = "heroicon-pause-circle"
     case trash = "heroicon-trash"
-    case heart = "heroicon-heart"
     case listBullet = "heroicon-list-bullet"
     case chevronLeftMini = "heroicon-chevron-left-mini"
     case chevronRightMini = "heroicon-chevron-right-mini"
@@ -44,10 +43,6 @@ enum AppIcon: String {
 
     // Profile icons
     case user = "heroicon-user"
-
-    // Mood icons
-    case cloud = "heroicon-cloud"
-    case sparkles = "heroicon-sparkles"
 
     /// Returns the outline version of the icon name
     var outline: String {
@@ -104,49 +99,40 @@ enum Theme {
         // Accent
         static let accent = Color("AccentPrimary")
         static let accentSoft = Color("AccentSoft")
-
-        // Muted mood accent colors (watercolor tones)
-        static let moodAccents: [Color] = [
-            Color(red: 0.561, green: 0.639, blue: 0.749),  // #8FA3BF - Low (steel blue)
-            Color(red: 0.639, green: 0.710, blue: 0.788),  // #A3B5C9 - Down (powder blue)
-            Color(red: 0.769, green: 0.725, blue: 0.659),  // #C4B9A8 - Okay (taupe)
-            Color(red: 0.788, green: 0.663, blue: 0.431),  // #C9A96E - Happy (ochre)
-            Color(red: 0.769, green: 0.569, blue: 0.431),  // #C4916E - Amazing (terracotta)
-        ]
-
-        /// Mood accent at reduced opacity for card/pill backgrounds
-        static func moodAccentBackground(for mood: Int) -> Color {
-            guard mood >= 0 && mood < moodAccents.count else { return surface }
-            return moodAccents[mood].opacity(0.12)
-        }
     }
 
     // MARK: - Typography
 
     struct Typography {
-        // Large display titles - serif for editorial warmth
+        static let instrumentSerif = "InstrumentSerif-Regular"
+
+        // Display titles — Instrument Serif
         static func displayLarge() -> Font {
-            .system(.largeTitle, design: .serif, weight: .regular)
+            .custom(instrumentSerif, size: 38, relativeTo: .largeTitle)
         }
 
         static func displayMedium() -> Font {
-            .system(.title, design: .serif, weight: .regular)
+            .custom(instrumentSerif, size: 30, relativeTo: .title)
         }
 
         static func displaySmall() -> Font {
-            .system(.title2, design: .serif, weight: .regular)
+            .custom(instrumentSerif, size: 26, relativeTo: .title2)
         }
 
-        // Headlines
+        // Display body — Instrument Serif at body scale
+        static func displayBody() -> Font {
+            .custom(instrumentSerif, size: 20, relativeTo: .title3)
+        }
+
+        // UI text — San Francisco
         static func headline() -> Font {
             .system(.headline, design: .default, weight: .semibold)
         }
 
         static func subheadline() -> Font {
-            .system(.subheadline, design: .default, weight: .medium)
+            .system(.subheadline, design: .default, weight: .semibold)
         }
 
-        // Body text
         static func body() -> Font {
             .system(.body, design: .default, weight: .regular)
         }
@@ -162,6 +148,11 @@ enum Theme {
 
         static func captionMedium() -> Font {
             .system(.caption, design: .default, weight: .medium)
+        }
+
+        // Labels
+        static func labelSmall() -> Font {
+            .system(.caption2, design: .default, weight: .medium)
         }
 
         // Monospace for timers
@@ -297,47 +288,6 @@ struct SoftCard<Content: View>: View {
     }
 }
 
-// MARK: - Mood Pill
-
-struct MoodPill: View {
-    let index: Int
-    let isSelected: Bool
-    let action: () -> Void
-
-    private let moodLabels = ["Low", "Down", "Okay", "Happy", "Amazing"]
-
-    var body: some View {
-        Button(action: action) {
-            Text(moodLabels[index])
-                .font(Theme.Typography.subheadline())
-                .foregroundColor(
-                    isSelected
-                    ? Theme.Colors.moodAccents[index]
-                    : Theme.Colors.textTertiary
-                )
-                .padding(.horizontal, Theme.Spacing.lg)
-                .padding(.vertical, Theme.Spacing.sm + 4)
-                .background(
-                    Capsule()
-                        .fill(isSelected ? Theme.Colors.moodAccentBackground(for: index) : Color.clear)
-                )
-                .overlay(
-                    Capsule()
-                        .strokeBorder(
-                            isSelected
-                            ? Theme.Colors.moodAccents[index].opacity(0.3)
-                            : Theme.Colors.border,
-                            lineWidth: 1
-                        )
-                )
-                .animation(.easeOut(duration: 0.2), value: isSelected)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Mood: \(moodLabels[index])")
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-}
-
 // MARK: - Breathing Circle (Recording Animation)
 
 struct BreathingCircle: View {
@@ -385,12 +335,6 @@ struct BreathingCircle: View {
 
         VStack(spacing: 40) {
             BreathingCircle()
-
-            HStack(spacing: 8) {
-                ForEach(0..<5) { i in
-                    MoodPill(index: i, isSelected: i == 3, action: {})
-                }
-            }
 
             SoftCard {
                 Text("This is a soft card")

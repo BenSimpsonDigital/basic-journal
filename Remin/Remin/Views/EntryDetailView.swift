@@ -15,14 +15,7 @@ struct EntryDetailView: View {
 
     @State private var isPlaying = false
     @State private var playbackProgress: Double = 0.0
-    @State private var selectedMood: Int
     @State private var showDeleteConfirmation = false
-
-    init(entry: Entry, viewModel: JournalViewModel) {
-        self.entry = entry
-        self.viewModel = viewModel
-        self._selectedMood = State(initialValue: entry.mood)
-    }
 
     var body: some View {
         ZStack {
@@ -41,7 +34,7 @@ struct EntryDetailView: View {
                             .font(Theme.Typography.caption())
                             .foregroundColor(Theme.Colors.textTertiary)
                             .textCase(.uppercase)
-                            .tracking(1)
+                            .tracking(1.2)
                     }
                     .padding(.top, Theme.Spacing.lg)
 
@@ -62,7 +55,7 @@ struct EntryDetailView: View {
                         Text(entry.transcript)
                             .font(Theme.Typography.body())
                             .foregroundColor(Theme.Colors.textPrimary)
-                            .lineSpacing(8)
+                            .lineSpacing(6)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding(Theme.Spacing.lg)
@@ -72,33 +65,6 @@ struct EntryDetailView: View {
                         RoundedRectangle(cornerRadius: Theme.Radius.large)
                             .strokeBorder(Theme.Colors.border, lineWidth: 1)
                     )
-
-                    // Mood selector
-                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                        HStack {
-                            AppIconImage(icon: .heart, isSelected: false, size: 14)
-                            Text("Mood")
-                        }
-                        .font(Theme.Typography.captionMedium())
-                        .foregroundColor(Theme.Colors.textTertiary)
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: Theme.Spacing.sm) {
-                                ForEach(0..<5) { index in
-                                    MoodPill(
-                                        index: index,
-                                        isSelected: selectedMood == index,
-                                        action: {
-                                            selectedMood = index
-                                            viewModel.updateMood(for: entry, to: index)
-                                        }
-                                    )
-                                }
-                            }
-                            .padding(.vertical, Theme.Spacing.sm)
-                        }
-                    }
-                    .padding(.top, Theme.Spacing.sm)
 
                     Spacer(minLength: Theme.Spacing.xxl)
 

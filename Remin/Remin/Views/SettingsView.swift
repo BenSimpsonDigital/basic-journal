@@ -111,7 +111,7 @@ struct SettingsSectionCard<Content: View>: View {
                 .font(Theme.Typography.captionMedium())
                 .foregroundColor(Theme.Colors.textSecondary)
                 .textCase(.uppercase)
-                .tracking(0.8)
+                .tracking(1.2)
                 .padding(.leading, Theme.Spacing.xs)
 
             content
