@@ -13,14 +13,20 @@
 			<array/>
 		</dict>
 	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>InstrumentSerif-Italic.ttf</string>
-		<string>InstrumentSerif-Regular.ttf</string>
-	</array>
-	<key>UTImportedTypeDeclarations</key>
-	<array>
-		<dict>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
+		<key>UIAppFonts</key>
+		<array>
+			<string>InstrumentSerif-Italic.ttf</string>
+			<string>InstrumentSerif-Regular.ttf</string>
+		</array>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Remin uses your microphone to record your daily voice journal entries.</string>
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>Remin uses speech recognition to transcribe your recorded journal entries.</string>
+		<key>UTImportedTypeDeclarations</key>
+		<array>
+			<dict>
 			<key>UTTypeDescription</key>
 			<string></string>
 			<key>UTTypeIconFiles</key>

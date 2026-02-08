@@ -163,7 +163,7 @@ struct DetailAudioPlayerCard: View {
                 Button(action: { isPlaying.toggle() }) {
                     ZStack {
                         Circle()
-                            .fill(Theme.Colors.accent)
+                            .fill(Theme.Colors.textPrimary)
                             .frame(width: 56, height: 56)
 
                         AppIconImage(icon: isPlaying ? .pause : .play, isSelected: true, size: 20)

@@ -32,33 +32,40 @@ struct MainTabView: View {
     @State private var showSettings = false
     @Environment(\.scenePhase) private var scenePhase
 
+    private var shouldShowTabBar: Bool {
+        !(selectedTab == 0 && viewModel.isTodayWorkflowActive)
+    }
+
     init(viewModel: JournalViewModel, selectedTab: Binding<Int>) {
         self.viewModel = viewModel
         self._selectedTab = selectedTab
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Sliding content
-            GeometryReader { proxy in
-                HStack(spacing: 0) {
-                    TodayView(viewModel: viewModel)
-                        .frame(width: proxy.size.width)
+        GeometryReader { proxy in
+            HStack(spacing: 0) {
+                TodayView(viewModel: viewModel)
+                    .frame(width: proxy.size.width)
 
-                    JournalView(viewModel: viewModel)
-                        .frame(width: proxy.size.width)
-                }
-                .frame(width: proxy.size.width * 2, alignment: .leading)
-                .offset(x: -CGFloat(selectedTab) * proxy.size.width)
-                .animation(.easeInOut(duration: 0.3), value: selectedTab)
+                JournalView(viewModel: viewModel)
+                    .frame(width: proxy.size.width)
             }
-
-            // Minimal Tab Bar
-            MinimalTabBar(
-                selectedTab: $selectedTab,
-                onSettingsTap: { showSettings = true }
-            )
+            .frame(width: proxy.size.width * 2, alignment: .leading)
+            .offset(x: -CGFloat(selectedTab) * proxy.size.width)
+            .animation(.easeInOut(duration: 0.3), value: selectedTab)
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .leading)
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if shouldShowTabBar {
+                MinimalTabBar(
+                    selectedTab: $selectedTab,
+                    onSettingsTap: { showSettings = true }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(1)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: shouldShowTabBar)
         .background(Theme.Colors.background.ignoresSafeArea())
         .ignoresSafeArea(.keyboard)
         .sheet(isPresented: $showSettings) {
@@ -83,6 +90,13 @@ struct MainTabView: View {
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 viewModel.checkAndResetDailyPrompt()
+
+                if viewModel.registerAppOpenAndPrepareDailyWorkflowIfNeeded() {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        selectedTab = 0
+                    }
+                }
+
                 if viewModel.shouldShowStartingPrompt() && selectedTab == 0 {
                     viewModel.flowState = .startingPrompt
                 }
@@ -163,7 +177,7 @@ struct TabBarItem: View {
                 Text(label)
                     .font(Theme.Typography.labelSmall())
             }
-            .foregroundColor(isSelected ? Theme.Colors.accent : Theme.Colors.textTertiary)
+            .foregroundColor(isSelected ? Theme.Colors.textPrimary : Theme.Colors.textTertiary)
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)

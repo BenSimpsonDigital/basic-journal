@@ -18,11 +18,13 @@ class AudioRecordingService: ObservableObject {
 
     @Published private(set) var isRecording = false
     @Published private(set) var recordingDuration: TimeInterval = 0
+    @Published private(set) var normalizedInputLevel: CGFloat = 0
 
     // MARK: - Private Properties
 
     private var audioRecorder: AVAudioRecorder?
     private var recordingTimer: Timer?
+    private var meterTimer: Timer?
     private var currentFileURL: URL?
     private var backgroundObserver: Any?
 
@@ -42,14 +44,31 @@ class AudioRecordingService: ObservableObject {
 
     /// Check current microphone permission status
     var permissionStatus: AVAudioSession.RecordPermission {
-        AVAudioSession.sharedInstance().recordPermission
+        if #available(iOS 17.0, *) {
+            switch AVAudioApplication.shared.recordPermission {
+            case .undetermined:
+                return .undetermined
+            case .denied:
+                return .denied
+            case .granted:
+                return .granted
+            @unknown default:
+                return .undetermined
+            }
+        } else {
+            return AVAudioSession.sharedInstance().recordPermission
+        }
     }
 
     /// Request microphone permission. Returns true if granted.
     func requestPermission() async -> Bool {
-        await withCheckedContinuation { continuation in
-            AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                continuation.resume(returning: granted)
+        if #available(iOS 17.0, *) {
+            return await AVAudioApplication.requestRecordPermission()
+        } else {
+            return await withCheckedContinuation { continuation in
+                AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                    continuation.resume(returning: granted)
+                }
             }
         }
     }
@@ -72,17 +91,20 @@ class AudioRecordingService: ObservableObject {
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
         ]
 
-        audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
-        audioRecorder?.record()
+        let recorder = try AVAudioRecorder(url: fileURL, settings: settings)
+        recorder.isMeteringEnabled = true
+        recorder.prepareToRecord()
+        recorder.record()
+        audioRecorder = recorder
         isRecording = true
         recordingDuration = 0
+        normalizedInputLevel = 0
 
         // Start timer for duration tracking
         recordingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.recordingDuration += 1
-            }
+            self?.recordingDuration += 1
         }
+        startMeteringTimer()
     }
 
     /// Stop recording and return the saved file URL
@@ -90,9 +112,12 @@ class AudioRecordingService: ObservableObject {
     func stopRecording() -> URL? {
         recordingTimer?.invalidate()
         recordingTimer = nil
+        meterTimer?.invalidate()
+        meterTimer = nil
         audioRecorder?.stop()
         audioRecorder = nil
         isRecording = false
+        normalizedInputLevel = 0
 
         // Deactivate audio session
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
@@ -143,17 +168,13 @@ class AudioRecordingService: ObservableObject {
 
     // MARK: - Background Handling
 
-    private nonisolated func observeAppBackgrounding() {
-        Task { @MainActor in
-            backgroundObserver = NotificationCenter.default.addObserver(
-                forName: UIApplication.willResignActiveNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] _ in
-                Task { @MainActor in
-                    self?.handleAppBackgrounded()
-                }
-            }
+    private func observeAppBackgrounding() {
+        backgroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleAppBackgrounded()
         }
     }
 
@@ -161,5 +182,25 @@ class AudioRecordingService: ObservableObject {
         guard isRecording else { return }
         // Auto-save: stop recording but keep the file
         stopRecording()
+    }
+
+    private func startMeteringTimer() {
+        meterTimer?.invalidate()
+        meterTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+            self?.updateInputLevel()
+        }
+    }
+
+    private func updateInputLevel() {
+        guard let audioRecorder, isRecording else { return }
+        audioRecorder.updateMeters()
+
+        let averagePower = audioRecorder.averagePower(forChannel: 0)
+        let minimumDecibels: Float = -60
+        let clampedDecibels = max(minimumDecibels, min(0, averagePower))
+        let normalizedLevel = CGFloat((clampedDecibels - minimumDecibels) / -minimumDecibels)
+
+        // Smoothing keeps motion stable while preserving responsiveness.
+        normalizedInputLevel = (normalizedInputLevel * 0.82) + (normalizedLevel * 0.18)
     }
 }

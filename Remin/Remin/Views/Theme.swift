@@ -111,6 +111,10 @@ enum Theme {
             .custom(instrumentSerif, size: 38, relativeTo: .largeTitle)
         }
 
+        static func displayXL() -> Font {
+            .custom(instrumentSerif, size: 44, relativeTo: .largeTitle)
+        }
+
         static func displayMedium() -> Font {
             .custom(instrumentSerif, size: 30, relativeTo: .title)
         }
@@ -134,7 +138,7 @@ enum Theme {
         }
 
         static func body() -> Font {
-            .system(.body, design: .default, weight: .regular)
+            .system(.body, design: .default, weight: .light)
         }
 
         static func bodySmall() -> Font {
@@ -198,12 +202,14 @@ struct PrimaryDockButtonStyle: ButtonStyle {
         configuration.label
             .font(Theme.Typography.subheadline())
             .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
+            .padding(.horizontal, Theme.Spacing.lg)
             .frame(height: Theme.Spacing.dockButtonHeight)
+            .frame(minWidth: 220, maxWidth: 320)
             .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.medium)
-                    .fill(Theme.Colors.accent)
+                Capsule()
+                    .fill(Theme.Colors.textPrimary)
             )
+            .frame(maxWidth: .infinity)
             .opacity(isEnabled ? 1.0 : Theme.Opacity.disabled)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
@@ -218,17 +224,10 @@ struct SecondaryDockButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Theme.Typography.subheadline())
-            .foregroundColor(Theme.Colors.textPrimary)
+            .foregroundColor(Theme.Colors.textSecondary)
+            .padding(.vertical, Theme.Spacing.xs)
             .frame(maxWidth: .infinity)
-            .frame(height: Theme.Spacing.dockButtonHeight)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.medium)
-                    .fill(Color.clear)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.Radius.medium)
-                    .strokeBorder(Theme.Colors.border, lineWidth: 1)
-            )
+            .frame(minHeight: 44)
             .opacity(isEnabled ? 1.0 : Theme.Opacity.disabled)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
@@ -259,7 +258,7 @@ struct BottomActionDock<Primary: View, Secondary: View>: View {
         }
         .padding(.horizontal, Theme.Spacing.lg)
         .padding(.top, Theme.Spacing.sm)
-        .padding(.bottom, Theme.Spacing.md)
+        .padding(.bottom, Theme.Spacing.lg)
     }
 }
 
@@ -291,37 +290,47 @@ struct SoftCard<Content: View>: View {
 // MARK: - Breathing Circle (Recording Animation)
 
 struct BreathingCircle: View {
-    @State private var scale: CGFloat = 1.0
+    @State private var pulseExpanded = false
     var size: CGFloat = 120
     var color: Color = Theme.Colors.accent
+    var isActive: Bool = true
 
     var body: some View {
         ZStack {
-            // Outer ring
             Circle()
-                .stroke(color.opacity(0.15), lineWidth: 2)
+                .stroke(color.opacity(0.14), lineWidth: 1)
                 .frame(width: size, height: size)
-                .scaleEffect(scale * 1.2)
-                .opacity(2.0 - Double(scale))
 
-            // Inner fill
             Circle()
-                .fill(color.opacity(0.08))
-                .frame(width: size, height: size)
-                .scaleEffect(scale)
+                .stroke(color.opacity(isActive ? 0.26 : 0.14), lineWidth: 2)
+                .frame(width: size * 0.68, height: size * 0.68)
+                .scaleEffect(isActive && pulseExpanded ? 1.22 : 1.0)
+                .opacity(isActive && pulseExpanded ? 0.10 : 0.34)
 
-            // Core dot
             Circle()
-                .fill(color.opacity(0.25))
-                .frame(width: size * 0.3, height: size * 0.3)
-                .scaleEffect(scale * 0.8 + 0.2)
+                .fill(color.opacity(isActive ? 0.24 : 0.12))
+                .frame(
+                    width: isActive ? size * 0.18 : size * 0.14,
+                    height: isActive ? size * 0.18 : size * 0.14
+                )
         }
         .onAppear {
-            withAnimation(
-                .easeInOut(duration: 3.0)
-                .repeatForever(autoreverses: true)
-            ) {
-                scale = 1.15
+            updatePulseAnimation()
+        }
+        .onChange(of: isActive) { _, _ in
+            updatePulseAnimation()
+        }
+    }
+
+    private func updatePulseAnimation() {
+        if isActive {
+            pulseExpanded = false
+            withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
+                pulseExpanded = true
+            }
+        } else {
+            withAnimation(.easeOut(duration: 0.2)) {
+                pulseExpanded = false
             }
         }
     }

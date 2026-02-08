@@ -54,7 +54,7 @@ extension Entry {
         var entries: [Entry] = []
 
         // Create entries for various days in the past 2 weeks
-        let daysAgo = [0, 1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 17]
+        let daysAgo = [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 18]
 
         for (index, days) in daysAgo.enumerated() {
             if let date = calendar.date(byAdding: .day, value: -days, to: today) {

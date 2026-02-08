@@ -92,7 +92,7 @@ struct SettingsView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(Theme.Colors.accent)
+                    .foregroundColor(Theme.Colors.textPrimary)
                 }
             }
         }
