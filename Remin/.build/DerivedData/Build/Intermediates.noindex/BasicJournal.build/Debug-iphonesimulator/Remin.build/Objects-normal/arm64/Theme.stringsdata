@@ -1,0 +1,48 @@
+{
+  "source": "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/Theme.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Mood: %@",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 336
+        }
+      },
+      {
+        "comment": "",
+        "key": "This is a soft card",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 382
+        }
+      },
+      {
+        "comment": "",
+        "key": "Content goes here",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 404
+        }
+      },
+      {
+        "comment": "",
+        "key": "Continue",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 404
+        }
+      },
+      {
+        "comment": "",
+        "key": "Not right now",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 404
+        }
+      }
+    ]
+  },
+  "version": 1
+}

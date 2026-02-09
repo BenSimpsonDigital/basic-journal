@@ -3,7 +3,7 @@
 //  Remin
 //
 //  One Thing - Daily Voice Journal
-//  Minimal, editorial design — clean typography, subtle motion
+//  Daily greeting flow with direct recording
 //
 
 import SwiftUI
@@ -11,70 +11,98 @@ import SwiftUI
 struct TodayView: View {
     @ObservedObject var viewModel: JournalViewModel
     @State private var showDiscardConfirmation = false
-    @State private var isCountingDown = false
+    @State private var hasStartingDockAppeared = false
 
-    // Active mood for subtle background tint
-    private var activeMood: Int? {
-        viewModel.todayEntry?.mood ?? viewModel.selectedMood
+    private let calendar = Calendar.current
+
+    private var isPendingDateToday: Bool {
+        calendar.isDateInToday(viewModel.pendingEntryDate)
+    }
+
+    private var shouldPresentFlow: Bool {
+        if viewModel.flowState == .startingPrompt || viewModel.flowState == .recording || viewModel.flowState == .preview {
+            return true
+        }
+
+        if viewModel.todayEntry == nil {
+            return true
+        }
+
+        return viewModel.flowState == .recordPrompt && !isPendingDateToday
+    }
+
+    private var referenceDate: Date {
+        if shouldPresentFlow && !isPendingDateToday {
+            return viewModel.pendingEntryDate
+        }
+
+        return Date()
+    }
+
+    private var isTodayStartingPrompt: Bool {
+        viewModel.flowState == .startingPrompt && isPendingDateToday
+    }
+
+    private var shouldShowDock: Bool {
+        viewModel.flowState == .startingPrompt || viewModel.flowState == .preview
+    }
+
+    private var isRecordingScreen: Bool {
+        viewModel.flowState == .recordPrompt || viewModel.flowState == .recording
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                // Base background
-                Theme.Colors.background
-                    .ignoresSafeArea()
+        ZStack {
+            Theme.Colors.background
+                .ignoresSafeArea()
 
-                // Subtle mood tint when mood is selected
-                if let mood = activeMood {
-                    RadialGradient(
-                        colors: [
-                            Theme.Colors.moodAccents[mood].opacity(0.06),
-                            Theme.Colors.background
-                        ],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: UIScreen.main.bounds.height * 0.5
-                    )
-                    .ignoresSafeArea()
-                    .animation(.easeInOut(duration: 0.8), value: mood)
-                }
-
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: Theme.Spacing.xl) {
-                        // Header with date
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: isTodayStartingPrompt ? Theme.Spacing.lg : Theme.Spacing.xl) {
+                    if !isTodayStartingPrompt && !isRecordingScreen {
                         ScreenHeaderView(
-                            title: formattedDate,
-                            subtitle: formattedWeekday,
+                            title: formattedDate(for: referenceDate),
+                            subtitle: formattedWeekday(for: referenceDate),
                             alignment: .center
                         )
                         .padding(.top, Theme.Spacing.md)
+                    }
 
-                        // Main content based on state
-                        if let todayEntry = viewModel.todayEntry,
-                           viewModel.flowState != .recording {
-                            TodayEntryCardView(entry: todayEntry, viewModel: viewModel)
-                        } else {
-                            TodayRecordingView(viewModel: viewModel, isCountingDown: $isCountingDown)
-                        }
+                    if shouldPresentFlow {
+                        TodayRecordingView(viewModel: viewModel)
+                    } else if let todayEntry = viewModel.todayEntry {
+                        TodayEntryCardView(entry: todayEntry)
                     }
                 }
-                .safeAreaInset(edge: .bottom) {
-                    todayDock
-                }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .confirmationDialog(
-                "Discard today's entry?",
-                isPresented: $showDiscardConfirmation,
-                titleVisibility: .visible
-            ) {
-                Button("Discard", role: .destructive) {
-                    UINotificationFeedbackGenerator().notificationOccurred(.warning)
-                    viewModel.cancelRecording()
-                }
-                Button("Keep recording", role: .cancel) { }
+        }
+        .onAppear {
+            if isTodayStartingPrompt {
+                triggerStartingDockAnimation()
             }
+        }
+        .onChange(of: isTodayStartingPrompt) { _, isStartingPrompt in
+            if isStartingPrompt {
+                triggerStartingDockAnimation()
+            } else {
+                hasStartingDockAppeared = false
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if shouldPresentFlow && shouldShowDock {
+                todayDock
+                    .zIndex(1)
+            }
+        }
+        .confirmationDialog(
+            "Delete this recording and try again?",
+            isPresented: $showDiscardConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete and try again", role: .destructive) {
+                UINotificationFeedbackGenerator().notificationOccurred(.warning)
+                viewModel.tryAgainFromPreview()
+            }
+            Button("Keep Preview", role: .cancel) { }
         }
     }
 
@@ -82,84 +110,66 @@ struct TodayView: View {
 
     @ViewBuilder
     private var todayDock: some View {
-        if viewModel.todayEntry == nil || viewModel.flowState == .recording {
-            switch viewModel.flowState {
-            case .startingPrompt:
-                BottomActionDock {
-                    Button("Start") {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            viewModel.beginJournalingFromPrompt()
-                        }
+        switch viewModel.flowState {
+        case .startingPrompt:
+            BottomActionDock {
+                VStack(spacing: Theme.Spacing.lg) {
+                    Button("I'm Ready") {
+                        viewModel.beginJournalingFromPrompt()
                     }
                     .buttonStyle(PrimaryDockButtonStyle())
-                } secondary: {
-                    Button("Later") {
-                        viewModel.dismissStartingPrompt()
-                    }
-                    .buttonStyle(SecondaryDockButtonStyle())
+                    .opacity(hasStartingDockAppeared ? 1.0 : 0.0)
+                    .offset(y: hasStartingDockAppeared ? 0 : 14)
+                    .animation(.easeOut(duration: 0.45).delay(0.24), value: hasStartingDockAppeared)
                 }
+            } secondary: {
+                Button("Later") {
+                    viewModel.dismissStartingPrompt()
+                }
+                .buttonStyle(SecondaryDockButtonStyle())
+                .opacity(hasStartingDockAppeared ? 1.0 : 0.0)
+                .offset(y: hasStartingDockAppeared ? 0 : 14)
+                .animation(.easeOut(duration: 0.45).delay(0.32), value: hasStartingDockAppeared)
+            }
 
-            case .selectMood:
-                BottomActionDock {
-                    Button("Next") {
-                        viewModel.advanceToRecordPrompt()
-                    }
-                    .buttonStyle(PrimaryDockButtonStyle())
-                    .disabled(viewModel.selectedMood == nil)
-                }
+        case .recordPrompt:
+            EmptyView()
 
-            case .recordPrompt:
-                if !isCountingDown {
-                    BottomActionDock {
-                        Button("I'm ready") {
-                            isCountingDown = true
-                        }
-                        .buttonStyle(PrimaryDockButtonStyle())
-                    } secondary: {
-                        Button("Back") {
-                            viewModel.goBackToMoodSelection()
-                        }
-                        .buttonStyle(SecondaryDockButtonStyle())
-                    }
-                    .transition(.opacity)
-                }
+        case .recording:
+            EmptyView()
 
-            case .recording:
-                BottomActionDock {
-                    Button("Stop & try again") {
-                        viewModel.cancelRecording()
-                        isCountingDown = false
-                    }
-                    .buttonStyle(SecondaryDockButtonStyle())
-                } secondary: {
-                    Button("Discard entry") {
-                        showDiscardConfirmation = true
-                    }
-                    .buttonStyle(SecondaryDockButtonStyle())
-                    .foregroundColor(Theme.Colors.textTertiary)
+        case .preview:
+            BottomActionDock {
+                Button("Save Entry") {
+                    viewModel.confirmPreviewEntrySave()
                 }
-
-            case .saved:
-                BottomActionDock {
-                    Button("Done") {
-                        viewModel.completeEntry()
-                    }
-                    .buttonStyle(PrimaryDockButtonStyle())
+                .buttonStyle(PrimaryDockButtonStyle())
+            } secondary: {
+                Button("Try Again") {
+                    showDiscardConfirmation = true
                 }
+                .buttonStyle(SecondaryDockButtonStyle())
             }
         }
     }
 
-    private var formattedWeekday: String {
+    private func formattedWeekday(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE"
-        return formatter.string(from: Date())
+        return formatter.string(from: date)
     }
 
-    private var formattedDate: String {
+    private func formattedDate(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMMM"
-        return formatter.string(from: Date())
+        return formatter.string(from: date)
+    }
+
+    private func triggerStartingDockAnimation() {
+        hasStartingDockAppeared = false
+        DispatchQueue.main.async {
+            hasStartingDockAppeared = true
+        }
     }
 }
 
@@ -167,7 +177,6 @@ struct TodayView: View {
 
 struct TodayRecordingView: View {
     @ObservedObject var viewModel: JournalViewModel
-    @Binding var isCountingDown: Bool
 
     var body: some View {
         ZStack {
@@ -176,26 +185,12 @@ struct TodayRecordingView: View {
                 StartingPromptView(viewModel: viewModel)
                     .transition(.opacity)
 
-            case .selectMood:
-                MoodSelectionStepView(viewModel: viewModel)
-                    .transition(.opacity)
-
-            case .recordPrompt:
-                RecordPromptStepView(
-                    viewModel: viewModel,
-                    isCountingDown: $isCountingDown,
-                    onCountdownComplete: {
-                        viewModel.startRecording()
-                    }
-                )
-                .transition(.opacity)
-
-            case .recording:
+            case .recordPrompt, .recording:
                 RecordingStateView(viewModel: viewModel)
                     .transition(.opacity)
 
-            case .saved:
-                SimpleSavedStateView(viewModel: viewModel)
+            case .preview:
+                PreviewStateView(viewModel: viewModel)
                     .transition(.opacity)
             }
         }
@@ -209,219 +204,84 @@ struct StartingPromptView: View {
     @ObservedObject var viewModel: JournalViewModel
     @State private var hasAppeared = false
 
-    private var timeOfDayGreeting: String {
+    private var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
+
         switch hour {
-        case 5..<12: return "Good morning"
-        case 12..<17: return "Good afternoon"
-        case 17..<21: return "Good evening"
-        default: return "Good night"
+        case 5..<12:
+            return "Good morning"
+        case 12..<17:
+            return "Good afternoon"
+        default:
+            return "Good evening"
         }
     }
 
     private var greetingLine: String {
         let name = viewModel.userName.trimmingCharacters(in: .whitespacesAndNewlines)
-        if name.isEmpty {
-            return "\(timeOfDayGreeting)."
-        } else {
-            return "\(timeOfDayGreeting), \(name)."
-        }
+        return name.isEmpty ? "\(greeting)." : "\(greeting), \(name)."
+    }
+
+    private var compactDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMM d"
+        return formatter.string(from: viewModel.pendingEntryDate).uppercased()
+    }
+
+    private var minimumCenteredHeight: CGFloat {
+        max(420, UIScreen.main.bounds.height - 220)
     }
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.xl) {
-            Spacer()
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
 
-            VStack(spacing: Theme.Spacing.xxl) {
-                Text(greetingLine)
-                    .font(Theme.Typography.displayLarge())
-                    .foregroundColor(Theme.Colors.textPrimary)
+            VStack(spacing: Theme.Spacing.md) {
+                Text(compactDate)
+                    .font(Theme.Typography.bodySmall())
+                    .foregroundColor(Theme.Colors.textTertiary)
                     .multilineTextAlignment(.center)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .opacity(hasAppeared ? 1.0 : 0.0)
+                    .offset(y: hasAppeared ? 0 : 10)
+                    .animation(.easeOut(duration: 0.45).delay(0.05), value: hasAppeared)
 
-                Text("Take a moment\nfor yourself")
-                    .font(Theme.Typography.displayLarge())
-                    .foregroundColor(Theme.Colors.textSecondary)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: Theme.Spacing.lg) {
+                    Text(greetingLine)
+                        .font(Theme.Typography.displayXL())
+                        .foregroundColor(Theme.Colors.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .opacity(hasAppeared ? 1.0 : 0.0)
+                        .offset(y: hasAppeared ? 0 : 12)
+                        .animation(.easeOut(duration: 0.5).delay(0.12), value: hasAppeared)
+
+                    Text("Ready to record today's entry?")
+                        .font(Theme.Typography.bodySmall())
+                        .foregroundColor(Theme.Colors.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, Theme.Spacing.sm)
+                        .opacity(hasAppeared ? 1.0 : 0.0)
+                        .offset(y: hasAppeared ? 0 : 14)
+                        .animation(.easeOut(duration: 0.5).delay(0.2), value: hasAppeared)
+                }
             }
-            .lineSpacing(4)
-            .opacity(hasAppeared ? 1.0 : 0)
-            .animation(.easeOut(duration: 0.6), value: hasAppeared)
+            .frame(maxWidth: .infinity)
+            .lineSpacing(2)
 
-            Spacer()
+            Spacer(minLength: 0)
         }
+        .frame(maxWidth: .infinity, minHeight: minimumCenteredHeight)
         .padding(.horizontal, Theme.Spacing.lg)
         .onAppear {
-            hasAppeared = true
-        }
-    }
-}
-
-// MARK: - Step 1: Mood Selection
-
-struct MoodSelectionStepView: View {
-    @ObservedObject var viewModel: JournalViewModel
-
-    var body: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            Spacer()
-
-            Text("How does today\nfeel, overall?")
-                .font(Theme.Typography.displayLarge())
-                .foregroundColor(Theme.Colors.textPrimary)
-                .multilineTextAlignment(.center)
-                .lineSpacing(4)
-
-            // Mood pills in a wrapping horizontal layout
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Theme.Spacing.sm) {
-                    ForEach(0..<5) { index in
-                        MoodPill(
-                            index: index,
-                            isSelected: viewModel.selectedMood == index,
-                            action: {
-                                UISelectionFeedbackGenerator().selectionChanged()
-                                withAnimation(.easeOut(duration: 0.2)) {
-                                    viewModel.selectedMood = index
-                                }
-                            }
-                        )
-                    }
-                }
-                .padding(.horizontal, Theme.Spacing.lg)
-                .padding(.vertical, Theme.Spacing.md)
-            }
-
-            Spacer()
-        }
-    }
-}
-
-// MARK: - Step 2: Record Prompt
-
-struct RecordPromptStepView: View {
-    @ObservedObject var viewModel: JournalViewModel
-    @Binding var isCountingDown: Bool
-    var onCountdownComplete: () -> Void
-
-    @State private var countdownValue = 3
-    @State private var showPromptText = true
-    @State private var countdownTimer: Timer?
-
-    var body: some View {
-        ZStack {
-            // Main Content
-            VStack(spacing: 0) {
-                Spacer()
-
-                Text("Let's record\ntoday's note")
-                    .font(Theme.Typography.displayLarge())
-                    .foregroundColor(Theme.Colors.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-                    .opacity(showPromptText ? 1.0 : 0.0)
-
-                Spacer()
-            }
-            .padding(.horizontal, Theme.Spacing.lg)
-
-            // Countdown overlay
-            if isCountingDown && !showPromptText {
-                CountdownNumberView(value: countdownValue)
-                    .transition(.scale.combined(with: .opacity))
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if isCountingDown {
-                cancelCountdown()
-            }
-        }
-        .animation(.easeInOut(duration: 0.3), value: showPromptText)
-        .animation(.easeOut(duration: 0.3), value: countdownValue)
-        .onChange(of: isCountingDown) { _, newValue in
-            if newValue {
-                startCountdown()
-            } else {
-                cancelCountdown()
+            hasAppeared = false
+            DispatchQueue.main.async {
+                hasAppeared = true
             }
         }
         .onDisappear {
-            cancelCountdown()
+            hasAppeared = false
         }
-    }
-
-    private func startCountdown() {
-        countdownValue = 3
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-
-        withAnimation(.easeOut(duration: 0.25)) {
-            showPromptText = false
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            guard isCountingDown else { return }
-            runCountdownTimer()
-        }
-    }
-
-    private func runCountdownTimer() {
-        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-            if countdownValue > 1 {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                countdownValue -= 1
-            } else {
-                timer.invalidate()
-                countdownTimer = nil
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                onCountdownComplete()
-            }
-        }
-    }
-
-    private func cancelCountdown() {
-        countdownTimer?.invalidate()
-        countdownTimer = nil
-        countdownValue = 3
-        isCountingDown = false
-        withAnimation(.easeOut(duration: 0.2)) {
-            showPromptText = true
-        }
-    }
-}
-
-// MARK: - Countdown Number View
-
-struct CountdownNumberView: View {
-    let value: Int
-
-    @State private var scale: CGFloat = 0.5
-    @State private var opacity: Double = 0
-
-    var body: some View {
-        Text("\(value)")
-            .font(.system(size: 96, weight: .ultraLight, design: .monospaced))
-            .foregroundColor(Theme.Colors.textPrimary)
-            .scaleEffect(scale)
-            .opacity(opacity)
-            .onAppear {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
-                    scale = 1.0
-                    opacity = 1.0
-                }
-            }
-            .onChange(of: value) { _, _ in
-                withAnimation(.easeIn(duration: 0.1)) {
-                    scale = 0.85
-                    opacity = 0.5
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                        scale = 1.0
-                        opacity = 1.0
-                    }
-                }
-            }
     }
 }
 
@@ -429,84 +289,140 @@ struct CountdownNumberView: View {
 
 struct RecordingStateView: View {
     @ObservedObject var viewModel: JournalViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var hasIdleBlobAppeared = false
+    @State private var hasIdlePromptAppeared = false
+
+    private var isRecording: Bool {
+        viewModel.flowState == .recording
+    }
+
+    private var compactDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMM d"
+        return formatter.string(from: viewModel.pendingEntryDate).uppercased()
+    }
+
+    private var minimumCenteredHeight: CGFloat {
+        max(560, UIScreen.main.bounds.height - 80)
+    }
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.xl) {
-            Spacer()
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
 
-            // Breathing circle animation
-            BreathingCircle(size: 160, color: Theme.Colors.accent)
-
-            // Timer display
-            Text(viewModel.formattedRecordingTime())
-                .font(Theme.Typography.timer())
-                .foregroundColor(Theme.Colors.textPrimary)
-                .monospacedDigit()
-
-            // Recording label
-            Text("Recording")
-                .font(Theme.Typography.captionMedium())
-                .foregroundColor(Theme.Colors.textSecondary)
-                .textCase(.uppercase)
-                .tracking(1.5)
-
-            Spacer()
-
-            // Stop button
-            Button(action: {
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
-                viewModel.stopRecording()
-            }) {
-                ZStack {
-                    Circle()
-                        .fill(Theme.Colors.accent)
-                        .frame(width: 64, height: 64)
-
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.white)
-                        .frame(width: 20, height: 20)
+                if isRecording {
+                    RecordingBlobView(isRecording: true, micLevel: viewModel.recordingInputLevel)
+                        .accessibilityHidden(true)
+                } else {
+                    Button(action: {
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        viewModel.startRecording()
+                    }) {
+                        RecordingBlobView(isRecording: false, micLevel: viewModel.recordingInputLevel)
+                            .scaleEffect(hasIdleBlobAppeared ? 1.0 : (reduceMotion ? 0.95 : 0.72))
+                            .opacity(hasIdleBlobAppeared ? 1.0 : 0.0)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Start recording")
+                    .accessibilityHint("Double tap to start recording")
                 }
+
+                if isRecording {
+                    Text(viewModel.formattedRecordingTime())
+                        .font(Theme.Typography.timer())
+                        .foregroundColor(Theme.Colors.textPrimary)
+                        .monospacedDigit()
+                        .padding(.top, Theme.Spacing.sm)
+                } else {
+                    Text("Tap to Start")
+                        .font(Theme.Typography.bodySmall())
+                        .foregroundColor(Theme.Colors.textTertiary)
+                        .padding(.top, -15)
+                        .opacity(hasIdlePromptAppeared ? 1.0 : 0.0)
+                }
+
+                Spacer(minLength: 0)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Stop recording")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Text("Tap to stop")
-                .font(Theme.Typography.caption())
-                .foregroundColor(Theme.Colors.textTertiary)
+            if isRecording {
+                Button("Stop Recording") {
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    viewModel.stopRecording()
+                }
+                .buttonStyle(PrimaryDockButtonStyle())
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .padding(.bottom, Theme.Spacing.xxl)
+            }
+        }
+        .padding(.horizontal, Theme.Spacing.lg)
+        .frame(maxWidth: .infinity, minHeight: minimumCenteredHeight)
+        .animation(.spring(response: 0.45, dampingFraction: 0.86), value: isRecording)
+        .onAppear {
+            triggerIdleEntranceIfNeeded()
+        }
+        .onChange(of: isRecording) { _, newValue in
+            if newValue {
+                hasIdleBlobAppeared = false
+                hasIdlePromptAppeared = false
+            } else {
+                triggerIdleEntranceIfNeeded()
+            }
+        }
+    }
 
-            Spacer()
+    private func triggerIdleEntranceIfNeeded() {
+        guard !isRecording else { return }
+
+        var resetTransaction = Transaction()
+        resetTransaction.disablesAnimations = true
+        withTransaction(resetTransaction) {
+            hasIdleBlobAppeared = false
+            hasIdlePromptAppeared = false
+        }
+
+        withAnimation(.easeOut(duration: reduceMotion ? 0.38 : 0.72)) {
+            hasIdleBlobAppeared = true
+        }
+
+        let textDelay = reduceMotion ? 0.30 : 0.74
+        DispatchQueue.main.asyncAfter(deadline: .now() + textDelay) {
+            guard !isRecording else { return }
+            withAnimation(.easeOut(duration: 0.36)) {
+                hasIdlePromptAppeared = true
+            }
         }
     }
 }
 
-// MARK: - Saved State
+// MARK: - Preview State
 
-struct SimpleSavedStateView: View {
+struct PreviewStateView: View {
     @ObservedObject var viewModel: JournalViewModel
     @State private var isPlaying = false
     @State private var playbackProgress: Double = 0.0
     @State private var showFullTranscript = false
 
-    private var savedEntry: Entry? {
-        viewModel.todayEntry
+    private var previewEntry: Entry? {
+        viewModel.previewEntryDraft
     }
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
-            Text("Saved for today")
+            Text("Preview")
                 .font(Theme.Typography.displaySmall())
                 .foregroundColor(Theme.Colors.textPrimary)
 
             SoftCard {
                 VStack(spacing: Theme.Spacing.lg) {
-                    // Audio playback
                     AudioPlaybackView(isPlaying: $isPlaying, progress: $playbackProgress)
 
                     Divider()
                         .foregroundColor(Theme.Colors.border)
 
-                    // Transcript preview
-                    if let entry = savedEntry {
+                    if let entry = previewEntry {
                         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                             Text(entry.transcript)
                                 .font(Theme.Typography.body())
@@ -522,11 +438,11 @@ struct SimpleSavedStateView: View {
                                     }
                                 }
                                 .font(Theme.Typography.caption())
-                                .foregroundColor(Theme.Colors.accent)
+                                .foregroundColor(Theme.Colors.textPrimary)
                             }
                         }
 
-                        Text("Transcript saved automatically")
+                        Text("Transcript updates while you review")
                             .font(Theme.Typography.caption())
                             .foregroundColor(Theme.Colors.textTertiary)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -534,18 +450,7 @@ struct SimpleSavedStateView: View {
                         Divider()
                             .foregroundColor(Theme.Colors.border)
 
-                        // Metadata: mood + date
                         HStack {
-                            Text(entry.moodLabel)
-                                .font(Theme.Typography.captionMedium())
-                                .foregroundColor(Theme.Colors.moodAccents[entry.mood])
-                                .padding(.horizontal, Theme.Spacing.md)
-                                .padding(.vertical, Theme.Spacing.xs + 2)
-                                .background(
-                                    Capsule()
-                                        .fill(Theme.Colors.moodAccentBackground(for: entry.mood))
-                                )
-
                             Spacer()
 
                             Text(entry.formattedTime)
@@ -553,7 +458,7 @@ struct SimpleSavedStateView: View {
                                 .foregroundColor(Theme.Colors.textTertiary)
                         }
                     } else {
-                        Text("Your entry has been saved.")
+                        Text("Preparing your preview...")
                             .font(Theme.Typography.body())
                             .foregroundColor(Theme.Colors.textSecondary)
                     }
@@ -571,13 +476,11 @@ struct SimpleSavedStateView: View {
 
 struct TodayEntryCardView: View {
     let entry: Entry
-    @ObservedObject var viewModel: JournalViewModel
     @State private var isPlaying = false
     @State private var playbackProgress: Double = 0.3
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
-            // Success badge
             HStack(spacing: Theme.Spacing.sm) {
                 AppIconImage(icon: .checkCircle, isSelected: true, size: 18)
                     .foregroundColor(Theme.Colors.accent)
@@ -586,34 +489,20 @@ struct TodayEntryCardView: View {
                     .foregroundColor(Theme.Colors.textSecondary)
             }
 
-            // Main card
             SoftCard {
                 VStack(spacing: Theme.Spacing.lg) {
-                    // Audio player
                     AudioPlaybackView(isPlaying: $isPlaying, progress: $playbackProgress)
 
                     Divider()
                         .foregroundColor(Theme.Colors.border)
 
-                    // Transcript
                     Text(entry.transcript)
                         .font(Theme.Typography.body())
                         .foregroundColor(Theme.Colors.textPrimary)
                         .lineSpacing(6)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    // Mood and time
                     HStack {
-                        Text(entry.moodLabel)
-                            .font(Theme.Typography.captionMedium())
-                            .foregroundColor(Theme.Colors.moodAccents[entry.mood])
-                            .padding(.horizontal, Theme.Spacing.md)
-                            .padding(.vertical, Theme.Spacing.xs + 2)
-                            .background(
-                                Capsule()
-                                    .fill(Theme.Colors.moodAccentBackground(for: entry.mood))
-                            )
-
                         Spacer()
 
                         Text(entry.formattedTime)
@@ -635,7 +524,6 @@ struct AudioPlaybackView: View {
 
     var body: some View {
         VStack(spacing: Theme.Spacing.md) {
-            // Waveform-style progress
             GeometryReader { geo in
                 HStack(spacing: 2) {
                     ForEach(0..<30, id: \.self) { index in
@@ -651,7 +539,6 @@ struct AudioPlaybackView: View {
             }
             .frame(height: 24)
 
-            // Controls
             HStack {
                 Text("0:45")
                     .font(Theme.Typography.caption())
@@ -661,7 +548,7 @@ struct AudioPlaybackView: View {
 
                 Button(action: { isPlaying.toggle() }) {
                     AppIconImage(icon: isPlaying ? .pauseCircle : .playCircle, isSelected: true, size: 48)
-                        .foregroundColor(Theme.Colors.accent)
+                        .foregroundColor(Theme.Colors.textPrimary)
                 }
                 .buttonStyle(.plain)
 
@@ -677,13 +564,6 @@ struct AudioPlaybackView: View {
 
 // MARK: - Preview
 
-#Preview("Today - Mood Selection") {
-    let vm = JournalViewModel()
-    vm.hasCompletedOnboarding = true
-    vm.entries.removeAll { $0.isToday }
-    return TodayView(viewModel: vm)
-}
-
 #Preview("Today - Starting Prompt") {
     let vm = JournalViewModel()
     vm.hasCompletedOnboarding = true
@@ -692,8 +572,16 @@ struct AudioPlaybackView: View {
     return TodayView(viewModel: vm)
 }
 
-#Preview("Today - With Entry") {
+#Preview("Today - Preview State") {
     let vm = JournalViewModel()
     vm.hasCompletedOnboarding = true
+    vm.entries.removeAll()
+    vm.pendingEntryDate = Date()
+    vm.flowState = .preview
+    vm.previewEntryDraft = Entry(
+        date: Date(),
+        transcript: "Preview transcript text appears here before saving.",
+        hasAudio: true
+    )
     return TodayView(viewModel: vm)
 }

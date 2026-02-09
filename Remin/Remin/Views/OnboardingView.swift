@@ -14,7 +14,7 @@ struct OnboardingView: View {
     @State private var nameInput: String = ""
     @FocusState private var isNameFieldFocused: Bool
 
-    private let totalPages = 4
+    private let totalPages = 3
 
     var body: some View {
         ZStack {
@@ -40,18 +40,11 @@ struct OnboardingView: View {
                     )
                     .tag(1)
 
-                    OnboardingPageView(
-                        title: "Track how\nyou feel",
-                        subtitle: "Add a simple mood to each entry.\nLook back anytime.",
-                        showMoodSelector: true
-                    )
-                    .tag(2)
-
                     OnboardingNamePageView(
                         nameInput: $nameInput,
                         isNameFieldFocused: $isNameFieldFocused
                     )
-                    .tag(3)
+                    .tag(2)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
 
@@ -105,32 +98,14 @@ struct OnboardingPageView: View {
     let title: String
     let subtitle: String
     var icon: AppIcon? = nil
-    var showMoodSelector: Bool = false
-
-    @State private var selectedMoodPreview: Int? = 3
 
     var body: some View {
         VStack(spacing: Theme.Spacing.xl) {
-            // Icon or mood selector
+            // Icon
             if let icon = icon {
                 AppIconImage(icon: icon, isSelected: false, size: 32)
                     .foregroundColor(Theme.Colors.textTertiary)
                     .padding(.bottom, Theme.Spacing.md)
-            } else if showMoodSelector {
-                HStack(spacing: Theme.Spacing.sm) {
-                    ForEach(0..<5) { index in
-                        MoodPill(
-                            index: index,
-                            isSelected: selectedMoodPreview == index,
-                            action: {
-                                withAnimation(.easeOut(duration: 0.2)) {
-                                    selectedMoodPreview = index
-                                }
-                            }
-                        )
-                    }
-                }
-                .padding(.bottom, Theme.Spacing.md)
             }
 
             // Title

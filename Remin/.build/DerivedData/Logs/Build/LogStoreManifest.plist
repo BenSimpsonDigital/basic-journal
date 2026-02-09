@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>12</integer>
+	<key>logs</key>
+	<dict>
+		<key>0E2C107C-17EC-4216-8F87-45ABC7B95D8B</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>0E2C107C-17EC-4216-8F87-45ABC7B95D8B.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>5</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>BasicJournal project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>Remin</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project BasicJournal with scheme Remin and configuration Debug</string>
+			<key>timeStartedRecording</key>
+			<real>792042757.18067002</real>
+			<key>timeStoppedRecording</key>
+			<real>792042817.71640599</real>
+			<key>title</key>
+			<string>Building project BasicJournal with scheme Remin and configuration Debug</string>
+			<key>uniqueIdentifier</key>
+			<string>0E2C107C-17EC-4216-8F87-45ABC7B95D8B</string>
+		</dict>
+		<key>2941A361-9352-4A1C-A190-D456351E997C</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>2941A361-9352-4A1C-A190-D456351E997C.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>BasicJournal project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>Remin</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Cleaning project BasicJournal with scheme Remin and configuration Debug</string>
+			<key>timeStartedRecording</key>
+			<real>792042756.23297799</real>
+			<key>timeStoppedRecording</key>
+			<real>792042757.16081095</real>
+			<key>title</key>
+			<string>Cleaning project BasicJournal with scheme Remin and configuration Debug</string>
+			<key>uniqueIdentifier</key>
+			<string>2941A361-9352-4A1C-A190-D456351E997C</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

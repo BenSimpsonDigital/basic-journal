@@ -3,7 +3,7 @@
 //  Remin
 //
 //  One Thing - Daily Voice Journal
-//  Calendar grid with muted mood accent colors
+//  Calendar grid with recording presence indicators
 //
 
 import SwiftUI
@@ -158,14 +158,8 @@ struct CalendarDayCell: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                // Background
-                if let entry = entry {
-                    RoundedRectangle(cornerRadius: Theme.Radius.small)
-                        .fill(Theme.Colors.moodAccents[entry.mood].opacity(0.15))
-                } else {
-                    RoundedRectangle(cornerRadius: Theme.Radius.small)
-                        .fill(Theme.Colors.surface.opacity(0.5))
-                }
+                RoundedRectangle(cornerRadius: Theme.Radius.small)
+                    .fill(Theme.Colors.surface.opacity(entry == nil ? 0.5 : 0.9))
 
                 // Today indicator
                 if isToday {
@@ -173,14 +167,16 @@ struct CalendarDayCell: View {
                         .strokeBorder(Theme.Colors.accent, lineWidth: 1.5)
                 }
 
-                // Day number
-                Text("\(calendar.component(.day, from: date))")
-                    .font(isToday ? Theme.Typography.captionMedium() : Theme.Typography.caption())
-                    .foregroundColor(
-                        entry != nil
-                        ? Theme.Colors.moodAccents[entry!.mood]
-                        : Theme.Colors.textPrimary
-                    )
+                VStack(spacing: Theme.Spacing.xs) {
+                    Text("\(calendar.component(.day, from: date))")
+                        .font(isToday ? Theme.Typography.captionMedium() : Theme.Typography.caption())
+                        .foregroundColor(Theme.Colors.textPrimary)
+
+                    Circle()
+                        .fill(Theme.Colors.accent)
+                        .frame(width: 6, height: 6)
+                        .opacity(entry == nil ? 0 : 1)
+                }
             }
             .aspectRatio(1, contentMode: .fit)
         }

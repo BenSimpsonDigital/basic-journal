@@ -1,0 +1,16 @@
+{
+  "source": "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/CalendarView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 177
+        }
+      }
+    ]
+  },
+  "version": 1
+}

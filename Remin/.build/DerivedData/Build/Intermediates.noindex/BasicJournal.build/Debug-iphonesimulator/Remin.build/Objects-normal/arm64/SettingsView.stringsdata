@@ -1,0 +1,64 @@
+{
+  "source": "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/SettingsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Settings",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 92
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 159
+        }
+      },
+      {
+        "comment": "",
+        "key": "Name",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 261
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your name",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 265
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your data stays private",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 295
+        }
+      },
+      {
+        "comment": "",
+        "key": "All entries are stored on your device. Nothing is shared.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 299
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,208 @@
+{
+  "source": "/Users/bensimpson/Documents/Projects/basic-journal/Remin/Remin/Views/TodayView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Discard today's entry?",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Discard",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "Keep recording",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 76
+        }
+      },
+      {
+        "comment": "",
+        "key": "Start",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "Later",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Next",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 104
+        }
+      },
+      {
+        "comment": "",
+        "key": "I'm ready",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 114
+        }
+      },
+      {
+        "comment": "",
+        "key": "Back",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 119
+        }
+      },
+      {
+        "comment": "",
+        "key": "Stop & try again",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 129
+        }
+      },
+      {
+        "comment": "",
+        "key": "Discard entry",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 135
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 144
+        }
+      },
+      {
+        "comment": "",
+        "key": "Take a moment\nfor yourself",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 241
+        }
+      },
+      {
+        "comment": "",
+        "key": "How does today\nfeel, overall?",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 268
+        }
+      },
+      {
+        "comment": "",
+        "key": "Let's record\ntoday's note",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 316
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 14,
+          "startingLine": 402
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recording",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 447
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tap to stop",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 473
+        }
+      },
+      {
+        "comment": "",
+        "key": "Stop recording",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 471
+        }
+      },
+      {
+        "comment": "",
+        "key": "Saved for today",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 496
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your entry has been saved.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 556
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transcript saved automatically",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 529
+        }
+      },
+      {
+        "comment": "",
+        "key": "See more",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 519
+        }
+      },
+      {
+        "comment": "",
+        "key": "Today's reflection",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 584
+        }
+      },
+      {
+        "comment": "",
+        "key": "0:45",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 656
+        }
+      },
+      {
+        "comment": "",
+        "key": "1:30",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 670
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -34,7 +34,6 @@ enum AppIcon: String {
     case pause = "heroicon-pause"
     case pauseCircle = "heroicon-pause-circle"
     case trash = "heroicon-trash"
-    case heart = "heroicon-heart"
     case listBullet = "heroicon-list-bullet"
     case chevronLeftMini = "heroicon-chevron-left-mini"
     case chevronRightMini = "heroicon-chevron-right-mini"
@@ -44,10 +43,6 @@ enum AppIcon: String {
 
     // Profile icons
     case user = "heroicon-user"
-
-    // Mood icons
-    case cloud = "heroicon-cloud"
-    case sparkles = "heroicon-sparkles"
 
     /// Returns the outline version of the icon name
     var outline: String {
@@ -104,51 +99,62 @@ enum Theme {
         // Accent
         static let accent = Color("AccentPrimary")
         static let accentSoft = Color("AccentSoft")
+    }
 
-        // Muted mood accent colors (watercolor tones)
-        static let moodAccents: [Color] = [
-            Color(red: 0.561, green: 0.639, blue: 0.749),  // #8FA3BF - Low (steel blue)
-            Color(red: 0.639, green: 0.710, blue: 0.788),  // #A3B5C9 - Down (powder blue)
-            Color(red: 0.769, green: 0.725, blue: 0.659),  // #C4B9A8 - Okay (taupe)
-            Color(red: 0.788, green: 0.663, blue: 0.431),  // #C9A96E - Happy (ochre)
-            Color(red: 0.769, green: 0.569, blue: 0.431),  // #C4916E - Amazing (terracotta)
-        ]
+    // MARK: - Blob Palette
 
-        /// Mood accent at reduced opacity for card/pill backgrounds
-        static func moodAccentBackground(for mood: Int) -> Color {
-            guard mood >= 0 && mood < moodAccents.count else { return surface }
-            return moodAccents[mood].opacity(0.12)
-        }
+    struct BlobPalette {
+        static let cloud = Color(red: 0.98, green: 0.98, blue: 1.00)
+        static let powderBlue = Color(red: 0.86, green: 0.93, blue: 1.00)
+        static let skyBlue = Color(red: 0.63, green: 0.74, blue: 1.00)
+        static let iceBlue = Color(red: 0.70, green: 0.84, blue: 1.00)
+        static let cobalt = Color(red: 0.46, green: 0.58, blue: 0.96)
+        static let lavender = Color(red: 0.87, green: 0.83, blue: 0.99)
+        static let lilac = Color(red: 0.83, green: 0.74, blue: 1.00)
+        static let blush = Color(red: 0.93, green: 0.85, blue: 0.99)
+        static let rose = Color(red: 0.95, green: 0.74, blue: 0.88)
+        static let peach = Color(red: 1.00, green: 0.86, blue: 0.76)
+        static let mist = Color(red: 0.98, green: 0.95, blue: 0.98)
     }
 
     // MARK: - Typography
 
     struct Typography {
-        // Large display titles - serif for editorial warmth
+        static let instrumentSerif = "InstrumentSerif-Regular"
+
+        // Display titles — Instrument Serif
         static func displayLarge() -> Font {
-            .system(.largeTitle, design: .serif, weight: .regular)
+            .custom(instrumentSerif, size: 38, relativeTo: .largeTitle)
+        }
+
+        static func displayXL() -> Font {
+            .custom(instrumentSerif, size: 44, relativeTo: .largeTitle)
         }
 
         static func displayMedium() -> Font {
-            .system(.title, design: .serif, weight: .regular)
+            .custom(instrumentSerif, size: 30, relativeTo: .title)
         }
 
         static func displaySmall() -> Font {
-            .system(.title2, design: .serif, weight: .regular)
+            .custom(instrumentSerif, size: 26, relativeTo: .title2)
         }
 
-        // Headlines
+        // Display body — Instrument Serif at body scale
+        static func displayBody() -> Font {
+            .custom(instrumentSerif, size: 20, relativeTo: .title3)
+        }
+
+        // UI text — San Francisco
         static func headline() -> Font {
             .system(.headline, design: .default, weight: .semibold)
         }
 
         static func subheadline() -> Font {
-            .system(.subheadline, design: .default, weight: .medium)
+            .system(.subheadline, design: .default, weight: .semibold)
         }
 
-        // Body text
         static func body() -> Font {
-            .system(.body, design: .default, weight: .regular)
+            .system(.body, design: .default, weight: .light)
         }
 
         static func bodySmall() -> Font {
@@ -162,6 +168,11 @@ enum Theme {
 
         static func captionMedium() -> Font {
             .system(.caption, design: .default, weight: .medium)
+        }
+
+        // Labels
+        static func labelSmall() -> Font {
+            .system(.caption2, design: .default, weight: .medium)
         }
 
         // Monospace for timers
@@ -207,12 +218,14 @@ struct PrimaryDockButtonStyle: ButtonStyle {
         configuration.label
             .font(Theme.Typography.subheadline())
             .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
+            .padding(.horizontal, Theme.Spacing.lg)
             .frame(height: Theme.Spacing.dockButtonHeight)
+            .frame(minWidth: 220, maxWidth: 320)
             .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.medium)
-                    .fill(Theme.Colors.accent)
+                Capsule()
+                    .fill(Theme.Colors.textPrimary)
             )
+            .frame(maxWidth: .infinity)
             .opacity(isEnabled ? 1.0 : Theme.Opacity.disabled)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
@@ -227,17 +240,10 @@ struct SecondaryDockButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Theme.Typography.subheadline())
-            .foregroundColor(Theme.Colors.textPrimary)
+            .foregroundColor(Theme.Colors.textSecondary)
+            .padding(.vertical, Theme.Spacing.xs)
             .frame(maxWidth: .infinity)
-            .frame(height: Theme.Spacing.dockButtonHeight)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.medium)
-                    .fill(Color.clear)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.Radius.medium)
-                    .strokeBorder(Theme.Colors.border, lineWidth: 1)
-            )
+            .frame(minHeight: 44)
             .opacity(isEnabled ? 1.0 : Theme.Opacity.disabled)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
@@ -268,7 +274,7 @@ struct BottomActionDock<Primary: View, Secondary: View>: View {
         }
         .padding(.horizontal, Theme.Spacing.lg)
         .padding(.top, Theme.Spacing.sm)
-        .padding(.bottom, Theme.Spacing.md)
+        .padding(.bottom, Theme.Spacing.lg)
     }
 }
 
@@ -297,81 +303,50 @@ struct SoftCard<Content: View>: View {
     }
 }
 
-// MARK: - Mood Pill
-
-struct MoodPill: View {
-    let index: Int
-    let isSelected: Bool
-    let action: () -> Void
-
-    private let moodLabels = ["Low", "Down", "Okay", "Happy", "Amazing"]
-
-    var body: some View {
-        Button(action: action) {
-            Text(moodLabels[index])
-                .font(Theme.Typography.subheadline())
-                .foregroundColor(
-                    isSelected
-                    ? Theme.Colors.moodAccents[index]
-                    : Theme.Colors.textTertiary
-                )
-                .padding(.horizontal, Theme.Spacing.lg)
-                .padding(.vertical, Theme.Spacing.sm + 4)
-                .background(
-                    Capsule()
-                        .fill(isSelected ? Theme.Colors.moodAccentBackground(for: index) : Color.clear)
-                )
-                .overlay(
-                    Capsule()
-                        .strokeBorder(
-                            isSelected
-                            ? Theme.Colors.moodAccents[index].opacity(0.3)
-                            : Theme.Colors.border,
-                            lineWidth: 1
-                        )
-                )
-                .animation(.easeOut(duration: 0.2), value: isSelected)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Mood: \(moodLabels[index])")
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-}
-
 // MARK: - Breathing Circle (Recording Animation)
 
 struct BreathingCircle: View {
-    @State private var scale: CGFloat = 1.0
+    @State private var pulseExpanded = false
     var size: CGFloat = 120
     var color: Color = Theme.Colors.accent
+    var isActive: Bool = true
 
     var body: some View {
         ZStack {
-            // Outer ring
             Circle()
-                .stroke(color.opacity(0.15), lineWidth: 2)
+                .stroke(color.opacity(0.14), lineWidth: 1)
                 .frame(width: size, height: size)
-                .scaleEffect(scale * 1.2)
-                .opacity(2.0 - Double(scale))
 
-            // Inner fill
             Circle()
-                .fill(color.opacity(0.08))
-                .frame(width: size, height: size)
-                .scaleEffect(scale)
+                .stroke(color.opacity(isActive ? 0.26 : 0.14), lineWidth: 2)
+                .frame(width: size * 0.68, height: size * 0.68)
+                .scaleEffect(isActive && pulseExpanded ? 1.22 : 1.0)
+                .opacity(isActive && pulseExpanded ? 0.10 : 0.34)
 
-            // Core dot
             Circle()
-                .fill(color.opacity(0.25))
-                .frame(width: size * 0.3, height: size * 0.3)
-                .scaleEffect(scale * 0.8 + 0.2)
+                .fill(color.opacity(isActive ? 0.24 : 0.12))
+                .frame(
+                    width: isActive ? size * 0.18 : size * 0.14,
+                    height: isActive ? size * 0.18 : size * 0.14
+                )
         }
         .onAppear {
-            withAnimation(
-                .easeInOut(duration: 3.0)
-                .repeatForever(autoreverses: true)
-            ) {
-                scale = 1.15
+            updatePulseAnimation()
+        }
+        .onChange(of: isActive) { _, _ in
+            updatePulseAnimation()
+        }
+    }
+
+    private func updatePulseAnimation() {
+        if isActive {
+            pulseExpanded = false
+            withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
+                pulseExpanded = true
+            }
+        } else {
+            withAnimation(.easeOut(duration: 0.2)) {
+                pulseExpanded = false
             }
         }
     }
@@ -385,12 +360,6 @@ struct BreathingCircle: View {
 
         VStack(spacing: 40) {
             BreathingCircle()
-
-            HStack(spacing: 8) {
-                ForEach(0..<5) { i in
-                    MoodPill(index: i, isSelected: i == 3, action: {})
-                }
-            }
 
             SoftCard {
                 Text("This is a soft card")
