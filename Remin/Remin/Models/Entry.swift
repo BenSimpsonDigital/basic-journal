@@ -15,63 +15,86 @@ struct Entry: Identifiable, Equatable {
     var date: Date
     var transcript: String
     var hasAudio: Bool
+    var isSample: Bool
 
-    init(id: UUID = UUID(), date: Date, transcript: String, hasAudio: Bool = true) {
+    init(
+        id: UUID = UUID(),
+        date: Date,
+        transcript: String,
+        hasAudio: Bool = true,
+        isSample: Bool = false
+    ) {
         self.id = id
         self.date = date
         self.transcript = transcript
         self.hasAudio = hasAudio
+        self.isSample = isSample
     }
 }
 
 // MARK: - Mock Data
 
 extension Entry {
-    /// Generate mock entries for UI prototyping
-    /// Entries span the last 2 weeks with realistic content
-    static func generateMockEntries() -> [Entry] {
+    /// Generate showcase entries for Journal design iteration.
+    /// Includes 18 samples across the last 3 weeks, excluding today.
+    static func generateJournalShowcaseEntries(referenceDate: Date = Date()) -> [Entry] {
         let calendar = Calendar.current
-        let today = Date()
+        let startOfToday = calendar.startOfDay(for: referenceDate)
 
         let transcripts = [
-            "Had dinner with John and talked about work. He's thinking about changing jobs too, which was interesting to hear.",
-            "Felt pretty flat today, work was stressful. The project deadline is looming and I'm not sure we'll make it.",
-            "Saw mum, that was nice. We went for a walk in the park and she told me stories about grandpa.",
-            "Quiet day, nothing special. Sometimes those days are needed though.",
-            "Really productive morning! Finished that report I've been putting off for weeks.",
-            "Couldn't sleep well last night, feeling a bit tired. Need to get back to a better routine.",
-            "Coffee with Sarah was lovely. Haven't seen her in months and we caught up on everything.",
-            "Started reading that book everyone's been talking about. Only a few chapters in but enjoying it so far.",
-            "Went for a run this morning. First one in a while, felt good to move.",
-            "Work meeting went better than expected. Got some positive feedback on the presentation.",
-            "Lazy Sunday. Made pancakes, watched some movies. Exactly what I needed.",
-            "Called dad for his birthday. He seemed really happy to hear from me.",
-            "Feeling anxious about tomorrow's interview. Trying to stay calm and prepare.",
-            "The interview went well! Should hear back next week.",
-            "Just a regular day. Nothing remarkable but nothing bad either."
+            "Morning coffee on the balcony with Maya and a 15-minute reset before meetings. I felt calm and grateful.",
+            "Prototype review with Jordan went cleaner than expected. I left proud of the spacing decisions.",
+            "Took a long walk after dinner and listened to the rain. Felt peaceful by the time I got home.",
+            "Heavy focus day. Finished the migration task but felt overwhelmed tracking follow-up bugs.",
+            "Met Alex for lunch and talked about interview prep. Left feeling confident and hopeful.",
+            "Woke up anxious, but the run helped. Still tired, but my head feels less noisy now.",
+            "Read three chapters tonight and stayed off social apps. That made me happy and relieved.",
+            "Late call with Priya and the team in Europe. Good momentum, but I felt stressed by the timeline.",
+            "Spent an hour organizing photos and found old travel clips from Lisbon. A nostalgic wave hit me.",
+            "Journaled right before bed and noticed how much better I sleep when I unload the day. I feel calm.",
+            "Quick gym session, then deep work block. Energy stayed steady and I felt joyful all afternoon.",
+            "Had a hard conversation with Sam and it went better than I feared. Nervous at first, relieved after.",
+            "Tried a new recipe and absolutely over-salted it. I was frustrated, then laughed and felt happy.",
+            "Search test: saved ideas for birthday plan, gift list, and coffee spots near downtown with Emma.",
+            "Reminder worked today. Recorded right when the notification popped and felt proud about consistency.",
+            "Spent too much time in meetings, not enough time making progress. I felt angry and burned out.",
+            "Watched the sunset from the car park after errands with Noah. Unexpectedly beautiful and peaceful.",
+            "Interview follow-up email sent to Dana. Nervous, hopeful, and trying not to refresh inbox every hour."
         ]
 
         var entries: [Entry] = []
+        let daysAgo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 17, 18, 20, 21]
+        let hours = [8, 21, 7, 20, 9, 22, 6, 19, 10, 18, 11, 17, 7, 21, 8, 20, 9, 19]
 
-        // Create entries for various days in the past 2 weeks
-        let daysAgo = [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 18]
-
-        for (index, days) in daysAgo.enumerated() {
-            if let date = calendar.date(byAdding: .day, value: -days, to: today) {
-                // Set time to morning/evening for variety
-                let hour = index % 2 == 0 ? 9 : 20
-                let adjustedDate = calendar.date(bySettingHour: hour, minute: 30, second: 0, of: date) ?? date
-
-                let entry = Entry(
-                    date: adjustedDate,
-                    transcript: transcripts[index % transcripts.count],
-                    hasAudio: true
-                )
-                entries.append(entry)
+        for index in 0..<daysAgo.count {
+            guard let date = calendar.date(byAdding: .day, value: -daysAgo[index], to: startOfToday) else {
+                continue
             }
+
+            let minute = index.isMultiple(of: 3) ? 12 : 41
+            let adjustedDate = calendar.date(
+                bySettingHour: hours[index],
+                minute: minute,
+                second: 0,
+                of: date
+            ) ?? date
+
+            entries.append(
+                Entry(
+                    date: adjustedDate,
+                    transcript: transcripts[index],
+                    hasAudio: true,
+                    isSample: true
+                )
+            )
         }
 
         return entries.sorted { $0.date > $1.date }
+    }
+
+    /// Backward-compatible alias used by existing previews.
+    static func generateMockEntries() -> [Entry] {
+        generateJournalShowcaseEntries()
     }
 }
 
@@ -109,4 +132,23 @@ extension Entry {
             return formattedDate
         }
     }
+
+    /// Search support text for date queries in timeline.
+    var searchableDateText: String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) {
+            return "today \(Self.timelineDateFormatter.string(from: date))"
+        }
+        if calendar.isDateInYesterday(date) {
+            return "yesterday \(Self.timelineDateFormatter.string(from: date))"
+        }
+        return Self.timelineDateFormatter.string(from: date)
+    }
+
+    private static let timelineDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        formatter.setLocalizedDateFormatFromTemplate("EEE d MMM yyyy")
+        return formatter
+    }()
 }

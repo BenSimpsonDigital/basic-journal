@@ -80,6 +80,14 @@ struct MainTabView: View {
                 viewModel.shouldNavigateToTimeline = false
             }
         }
+        .onChange(of: viewModel.shouldNavigateToTodayFromJournal) { _, shouldNavigate in
+            if shouldNavigate {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    selectedTab = 0
+                }
+                viewModel.shouldNavigateToTodayFromJournal = false
+            }
+        }
         // Reset to ready-to-record when returning to Today tab after dismissing starting prompt
         .onChange(of: selectedTab) { _, newTab in
             if newTab == 0 && viewModel.hasSeenStartingPromptToday && viewModel.todayEntry == nil {

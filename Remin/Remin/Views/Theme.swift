@@ -128,7 +128,7 @@ enum Theme {
         }
 
         static func displayXL() -> Font {
-            .custom(instrumentSerif, size: 44, relativeTo: .largeTitle)
+            .custom(instrumentSerif, size: 46, relativeTo: .largeTitle)
         }
 
         static func displayMedium() -> Font {
