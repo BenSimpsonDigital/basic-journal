@@ -20,10 +20,12 @@
 			<string>InstrumentSerif-Italic.ttf</string>
 			<string>InstrumentSerif-Regular.ttf</string>
 		</array>
-		<key>NSMicrophoneUsageDescription</key>
-		<string>Remin uses your microphone to record your daily voice journal entries.</string>
-		<key>NSSpeechRecognitionUsageDescription</key>
-		<string>Remin uses speech recognition to transcribe your recorded journal entries.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Remin uses your microphone to record your daily voice journal entries.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Remin uses your photo library so you can choose a profile picture.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Remin uses speech recognition to transcribe your recorded journal entries.</string>
 		<key>UTImportedTypeDeclarations</key>
 		<array>
 			<dict>

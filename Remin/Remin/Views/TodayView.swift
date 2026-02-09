@@ -218,7 +218,7 @@ struct StartingPromptView: View {
     }
 
     private var greetingLine: String {
-        let name = viewModel.userName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = viewModel.greetingName
         return name.isEmpty ? "\(greeting)." : "\(greeting), \(name)."
     }
 
