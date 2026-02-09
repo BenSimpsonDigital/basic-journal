@@ -26,6 +26,9 @@ class JournalViewModel: ObservableObject {
     private enum DefaultsKey {
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
         static let userName = "userName"
+        static let firstName = "firstName"
+        static let lastName = "lastName"
+        static let profileImageData = "profileImageData"
         static let hasSeenStartingPromptToday = "hasSeenStartingPromptToday"
         static let lastStartingPromptDate = "lastStartingPromptDate"
         static let dailyPromptDate = "dailyPromptDate"
@@ -44,9 +47,25 @@ class JournalViewModel: ObservableObject {
         didSet { UserDefaults.standard.set(hasCompletedOnboarding, forKey: DefaultsKey.hasCompletedOnboarding) }
     }
 
-    /// User's display name (set during onboarding, editable in settings)
-    @Published var userName: String = "" {
-        didSet { UserDefaults.standard.set(userName, forKey: DefaultsKey.userName) }
+    /// User's first name (set during onboarding, editable in profile)
+    @Published var firstName: String = "" {
+        didSet { UserDefaults.standard.set(firstName, forKey: DefaultsKey.firstName) }
+    }
+
+    /// User's last name (editable in profile)
+    @Published var lastName: String = "" {
+        didSet { UserDefaults.standard.set(lastName, forKey: DefaultsKey.lastName) }
+    }
+
+    /// Optional profile image bytes
+    @Published var profileImageData: Data? = nil {
+        didSet {
+            if let profileImageData {
+                UserDefaults.standard.set(profileImageData, forKey: DefaultsKey.profileImageData)
+            } else {
+                UserDefaults.standard.removeObject(forKey: DefaultsKey.profileImageData)
+            }
+        }
     }
 
     /// Current flow state for Today screen
@@ -135,8 +154,11 @@ class JournalViewModel: ObservableObject {
         // Load persisted onboarding state
         self.hasCompletedOnboarding = UserDefaults.standard.bool(forKey: DefaultsKey.hasCompletedOnboarding)
 
-        // Load persisted user name
-        self.userName = UserDefaults.standard.string(forKey: DefaultsKey.userName) ?? ""
+        // Load persisted profile fields
+        self.firstName = UserDefaults.standard.string(forKey: DefaultsKey.firstName) ?? ""
+        self.lastName = UserDefaults.standard.string(forKey: DefaultsKey.lastName) ?? ""
+        self.profileImageData = UserDefaults.standard.data(forKey: DefaultsKey.profileImageData)
+        migrateLegacyUserNameIfNeeded()
 
         // Load persisted starting prompt state
         self.hasSeenStartingPromptToday = UserDefaults.standard.bool(forKey: DefaultsKey.hasSeenStartingPromptToday)
@@ -183,6 +205,27 @@ class JournalViewModel: ObservableObject {
         guard !searchQuery.isEmpty else { return [] }
         let query = searchQuery.lowercased()
         return entries.filter { $0.transcript.lowercased().contains(query) }
+    }
+
+    /// Full profile display name for settings and profile summary surfaces.
+    var profileDisplayName: String {
+        let first = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let last = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let full = [first, last]
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return full.isEmpty ? "Your Name" : full
+    }
+
+    /// Name injected into greeting lines.
+    var greetingName: String {
+        let first = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let last = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return [first, last]
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Whether the Today entry workflow UI is currently active.
@@ -485,6 +528,28 @@ class JournalViewModel: ObservableObject {
     /// Persist the starting prompt state to UserDefaults
     private func persistStartingPromptState() {
         UserDefaults.standard.set(hasSeenStartingPromptToday, forKey: DefaultsKey.hasSeenStartingPromptToday)
+    }
+
+    /// Migrates the legacy single userName into first/last names when needed.
+    private func migrateLegacyUserNameIfNeeded() {
+        let hasAnyCurrentName =
+            !firstName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+            !lastName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+        guard !hasAnyCurrentName else { return }
+
+        let legacyName = UserDefaults.standard.string(forKey: DefaultsKey.userName)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        guard !legacyName.isEmpty else { return }
+
+        let tokens = legacyName.split(whereSeparator: \.isWhitespace).map(String.init)
+        firstName = tokens.first ?? ""
+        if tokens.count > 1 {
+            lastName = tokens.dropFirst().joined(separator: " ")
+        } else {
+            lastName = ""
+        }
     }
 
     // MARK: - Calendar Support

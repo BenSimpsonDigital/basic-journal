@@ -72,9 +72,8 @@ struct OnboardingView: View {
                             }
                         } else {
                             let trimmed = nameInput.trimmingCharacters(in: .whitespacesAndNewlines)
-                            if !trimmed.isEmpty {
-                                viewModel.userName = trimmed
-                            }
+                            viewModel.firstName = trimmed
+                            viewModel.lastName = ""
                             viewModel.completeOnboarding()
                         }
                     }
