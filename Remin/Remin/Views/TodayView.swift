@@ -56,8 +56,6 @@ struct TodayView: View {
             Theme.Colors.background
                 .ignoresSafeArea()
 
-            TodayBottomGradientView()
-
             ScrollView(showsIndicators: false) {
                 VStack(spacing: isTodayStartingPrompt ? Theme.Spacing.lg : Theme.Spacing.xl) {
                     if !isTodayStartingPrompt && !isRecordingScreen {
@@ -171,84 +169,6 @@ struct TodayView: View {
         hasStartingDockAppeared = false
         DispatchQueue.main.async {
             hasStartingDockAppeared = true
-        }
-    }
-}
-
-private struct TodayBottomGradientView: View {
-    @State private var isDrifting = false
-
-    var body: some View {
-        GeometryReader { proxy in
-            let width = proxy.size.width
-            let height = proxy.size.height
-            let bottomBandHeight = max(320, height * 0.62)
-
-            ZStack(alignment: .bottom) {
-                // Base warm wash so the gradient continuously fills the full bottom area.
-                LinearGradient(
-                    stops: [
-                        .init(color: Color(red: 1.00, green: 0.94, blue: 0.88).opacity(0.00), location: 0.00),
-                        .init(color: Color(red: 1.00, green: 0.91, blue: 0.79).opacity(0.10), location: 0.62),
-                        .init(color: Color(red: 1.00, green: 0.85, blue: 0.73).opacity(0.18), location: 1.00)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(width: width * 1.05, height: bottomBandHeight + 80)
-                .offset(y: 30)
-
-                Circle()
-                    .fill(Color(red: 1.00, green: 0.90, blue: 0.42).opacity(0.20))
-                    .frame(width: width * 0.95, height: width * 0.95)
-                    .offset(
-                        x: isDrifting ? -22 : -8,
-                        y: isDrifting ? 86 : 72
-                    )
-                    .blur(radius: 56)
-
-                Circle()
-                    .fill(Color(red: 1.00, green: 0.74, blue: 0.73).opacity(0.18))
-                    .frame(width: width * 1.05, height: width * 1.05)
-                    .offset(
-                        x: isDrifting ? 26 : 12,
-                        y: isDrifting ? 82 : 66
-                    )
-                    .blur(radius: 58)
-
-                Circle()
-                    .fill(Color(red: 1.00, green: 0.82, blue: 0.68).opacity(0.08))
-                    .frame(width: width * 0.75, height: width * 0.75)
-                    .offset(
-                        x: isDrifting ? 2 : -2,
-                        y: isDrifting ? 72 : 62
-                    )
-                    .blur(radius: 44)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .mask(
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: 0.00),
-                        .init(color: .clear, location: 0.34),
-                        .init(color: .black.opacity(0.82), location: 0.66),
-                        .init(color: .black, location: 1.00)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-        }
-        .allowsHitTesting(false)
-        .ignoresSafeArea(edges: [.bottom, .horizontal])
-        .onAppear {
-            guard !isDrifting else { return }
-            withAnimation(
-                .easeInOut(duration: 17.0)
-                .repeatForever(autoreverses: true)
-            ) {
-                isDrifting = true
-            }
         }
     }
 }
@@ -369,6 +289,9 @@ struct StartingPromptView: View {
 
 struct RecordingStateView: View {
     @ObservedObject var viewModel: JournalViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var hasIdleBlobAppeared = false
+    @State private var hasIdlePromptAppeared = false
 
     private var isRecording: Bool {
         viewModel.flowState == .recording
@@ -380,70 +303,97 @@ struct RecordingStateView: View {
         return formatter.string(from: viewModel.pendingEntryDate).uppercased()
     }
 
-    private var statusTitle: String {
-        isRecording ? "Recording in progress" : "Ready to record"
+    private var minimumCenteredHeight: CGFloat {
+        max(560, UIScreen.main.bounds.height - 80)
     }
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            Text(compactDate)
-                .font(Theme.Typography.bodySmall())
-                .foregroundColor(Theme.Colors.textTertiary)
-                .tracking(1.2)
-                .padding(.top, Theme.Spacing.lg)
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
 
-            Text(statusTitle)
-                .font(Theme.Typography.displaySmall())
-                .foregroundColor(Theme.Colors.textPrimary)
-                .multilineTextAlignment(.center)
+                if isRecording {
+                    RecordingBlobView(isRecording: true, micLevel: viewModel.recordingInputLevel)
+                        .accessibilityHidden(true)
+                } else {
+                    Button(action: {
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        viewModel.startRecording()
+                    }) {
+                        RecordingBlobView(isRecording: false, micLevel: viewModel.recordingInputLevel)
+                            .scaleEffect(hasIdleBlobAppeared ? 1.0 : (reduceMotion ? 0.95 : 0.72))
+                            .opacity(hasIdleBlobAppeared ? 1.0 : 0.0)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Start recording")
+                    .accessibilityHint("Double tap to start recording")
+                }
 
-            Spacer(minLength: Theme.Spacing.xl)
+                if isRecording {
+                    Text(viewModel.formattedRecordingTime())
+                        .font(Theme.Typography.timer())
+                        .foregroundColor(Theme.Colors.textPrimary)
+                        .monospacedDigit()
+                        .padding(.top, Theme.Spacing.sm)
+                } else {
+                    Text("Tap to Start")
+                        .font(Theme.Typography.bodySmall())
+                        .foregroundColor(Theme.Colors.textTertiary)
+                        .padding(.top, -15)
+                        .opacity(hasIdlePromptAppeared ? 1.0 : 0.0)
+                }
 
-            RecordingBlobView(isRecording: isRecording, micLevel: viewModel.recordingInputLevel)
+                Spacer(minLength: 0)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if isRecording {
-                Text(viewModel.formattedRecordingTime())
-                    .font(Theme.Typography.timer())
-                    .foregroundColor(Theme.Colors.textPrimary)
-                    .monospacedDigit()
-            }
-
-            Button(action: {
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
-                if isRecording {
+                Button("Stop Recording") {
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
                     viewModel.stopRecording()
-                } else {
-                    viewModel.startRecording()
                 }
-            }) {
-                ZStack {
-                    Circle()
-                        .fill(Theme.Colors.textPrimary)
-                        .frame(width: 72, height: 72)
-                        .shadow(color: Color.black.opacity(0.08), radius: 12, y: 6)
-
-                    if isRecording {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.white)
-                            .frame(width: 18, height: 18)
-                    } else {
-                        AppIconImage(icon: .play, isSelected: true, size: 22)
-                            .foregroundColor(.white)
-                            .offset(x: 1)
-                    }
-                }
+                .buttonStyle(PrimaryDockButtonStyle())
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .padding(.bottom, Theme.Spacing.xxl)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(isRecording ? "Stop recording" : "Start recording")
-
-            Text(isRecording ? "Tap to Stop" : "Tap to Start")
-                .font(Theme.Typography.caption())
-                .foregroundColor(Theme.Colors.textTertiary)
-
-            Spacer(minLength: Theme.Spacing.xxl)
         }
         .padding(.horizontal, Theme.Spacing.lg)
-        .frame(maxWidth: .infinity, minHeight: 520)
+        .frame(maxWidth: .infinity, minHeight: minimumCenteredHeight)
+        .animation(.spring(response: 0.45, dampingFraction: 0.86), value: isRecording)
+        .onAppear {
+            triggerIdleEntranceIfNeeded()
+        }
+        .onChange(of: isRecording) { _, newValue in
+            if newValue {
+                hasIdleBlobAppeared = false
+                hasIdlePromptAppeared = false
+            } else {
+                triggerIdleEntranceIfNeeded()
+            }
+        }
+    }
+
+    private func triggerIdleEntranceIfNeeded() {
+        guard !isRecording else { return }
+
+        var resetTransaction = Transaction()
+        resetTransaction.disablesAnimations = true
+        withTransaction(resetTransaction) {
+            hasIdleBlobAppeared = false
+            hasIdlePromptAppeared = false
+        }
+
+        withAnimation(.easeOut(duration: reduceMotion ? 0.38 : 0.72)) {
+            hasIdleBlobAppeared = true
+        }
+
+        let textDelay = reduceMotion ? 0.30 : 0.74
+        DispatchQueue.main.asyncAfter(deadline: .now() + textDelay) {
+            guard !isRecording else { return }
+            withAnimation(.easeOut(duration: 0.36)) {
+                hasIdlePromptAppeared = true
+            }
+        }
     }
 }
 

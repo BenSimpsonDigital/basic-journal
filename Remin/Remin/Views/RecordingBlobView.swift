@@ -16,7 +16,6 @@ struct RecordingBlobView: View {
     @State private var isBreathing = false
     @State private var isDrifting = false
     @State private var isSheenShifting = false
-    @State private var isAuraExpanded = false
     @State private var recordingBlend: CGFloat = 0
 
     private var clampedMicLevel: CGFloat {
@@ -26,8 +25,8 @@ struct RecordingBlobView: View {
     var body: some View {
         GeometryReader { proxy in
             let width = max(proxy.size.width, 1)
-            let idleDiameter = clamp(width * 0.34, min: 120, max: 180)
-            let recordingDiameter = clamp(width * 0.46, min: 170, max: 250)
+            let idleDiameter = clamp(width * 0.40, min: 150, max: 220)
+            let recordingDiameter = clamp(width * 0.50, min: 190, max: 270)
             let diameter = lerp(idleDiameter, recordingDiameter, recordingBlend)
 
             let breathingMin = lerp(0.98, 0.99, recordingBlend)
@@ -36,40 +35,16 @@ struct RecordingBlobView: View {
             let micScale = isRecording ? (clampedMicLevel * 0.035) : 0
 
             let driftValue: CGFloat = reduceMotion ? 0 : (isDrifting ? 1 : 0)
-            let warpX = reduceMotion ? 1.0 : lerp(0.995, 1.025, driftValue)
-            let warpY = reduceMotion ? 1.0 : lerp(1.01, 0.975, driftValue)
-
-            let auraOpacity = 0.08 + (recordingBlend * 0.14) + ((isRecording ? clampedMicLevel : 0) * 0.22)
-            let auraScale = reduceMotion ? 1.02 : (isAuraExpanded ? 1.18 : 1.04)
+            let warpX = reduceMotion ? 1.0 : lerp(0.992, 1.012, driftValue)
+            let warpY = reduceMotion ? 1.0 : lerp(1.008, 0.988, driftValue)
 
             ZStack {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            stops: [
-                                .init(color: Color(red: 0.63, green: 0.74, blue: 1.00).opacity(auraOpacity), location: 0.15),
-                                .init(color: Color(red: 0.85, green: 0.78, blue: 0.99).opacity(auraOpacity * 0.62), location: 0.46),
-                                .init(color: .clear, location: 1.0)
-                            ],
-                            center: UnitPoint(x: 0.48 + (driftValue * 0.04), y: 0.5 - (driftValue * 0.03)),
-                            startRadius: diameter * 0.10,
-                            endRadius: diameter * 0.78
-                        )
-                    )
-                    .frame(width: diameter * 1.42, height: diameter * 1.42)
-                    .scaleEffect(auraScale)
-                    .blur(radius: reduceMotion ? 18 : 26)
-                    .opacity(isRecording || clampedMicLevel > 0.01 ? 1 : 0.72)
-
                 blobBody(diameter: diameter, driftValue: driftValue)
                     .frame(width: diameter, height: diameter)
                     .scaleEffect(x: warpX, y: warpY)
                     .scaleEffect(breathingScale + micScale)
-                    .shadow(
-                        color: Color(red: 0.68, green: 0.77, blue: 0.98).opacity(0.22 + (recordingBlend * 0.12)),
-                        radius: lerp(18, 30, recordingBlend),
-                        y: lerp(8, 14, recordingBlend)
-                    )
+                    .offset(y: reduceMotion ? 0 : lerp(-1.5, 2.5, driftValue))
+                    .shadow(color: Color.black.opacity(0.05), radius: 10, y: 8)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .animation(.spring(response: 0.68, dampingFraction: 0.84), value: isRecording)
@@ -101,62 +76,101 @@ struct RecordingBlobView: View {
     private func blobBody(diameter: CGFloat, driftValue: CGFloat) -> some View {
         let sheenShift = reduceMotion ? 0 : (isSheenShifting ? 1.0 : 0.0)
         let sheenX = lerp(-diameter * 0.20, diameter * 0.16, sheenShift)
+        let highlightOffsetX = lerp(-diameter * 0.08, diameter * 0.06, driftValue)
+        let highlightOffsetY = lerp(-diameter * 0.12, diameter * 0.05, driftValue)
+        let saturation = 1.28 + (recordingBlend * 0.30)
 
         ZStack {
+            // Soft feathered edge shell to avoid harsh outlines.
             Circle()
-                .fill(
-                    RadialGradient(
-                        stops: [
-                            .init(color: Color(red: 0.97, green: 0.98, blue: 1.00), location: 0.00),
-                            .init(color: Color(red: 0.77, green: 0.88, blue: 1.00), location: 0.32),
-                            .init(color: Color(red: 0.84, green: 0.78, blue: 0.98), location: 0.62),
-                            .init(color: Color(red: 0.98, green: 0.95, blue: 0.98), location: 1.00)
-                        ],
-                        center: UnitPoint(x: 0.32 + (driftValue * 0.16), y: 0.25 - (driftValue * 0.10)),
-                        startRadius: diameter * 0.03,
-                        endRadius: diameter * 0.74
-                    )
-                )
+                .fill(Theme.BlobPalette.iceBlue.opacity(0.46))
+                .scaleEffect(1.03)
+                .blur(radius: diameter * 0.08)
 
             Circle()
-                .fill(
-                    LinearGradient(
-                        stops: [
-                            .init(color: Color(red: 0.99, green: 0.98, blue: 1.00).opacity(0.56), location: 0.00),
-                            .init(color: Color(red: 0.82, green: 0.94, blue: 1.00).opacity(0.38), location: 0.40),
-                            .init(color: Color(red: 0.86, green: 0.82, blue: 1.00).opacity(0.32), location: 0.75),
-                            .init(color: Color(red: 1.00, green: 0.95, blue: 0.98).opacity(0.30), location: 1.00)
-                        ],
-                        startPoint: UnitPoint(x: 0.14 + (driftValue * 0.20), y: 0.08),
-                        endPoint: UnitPoint(x: 0.88 - (driftValue * 0.14), y: 0.96)
-                    )
-                )
-                .blendMode(.screen)
+                .fill(Theme.BlobPalette.powderBlue.opacity(0.56 + (recordingBlend * 0.08)))
+                .scaleEffect(0.96)
+                .blur(radius: diameter * 0.06)
 
             Circle()
-                .strokeBorder(Color.white.opacity(0.46), lineWidth: 1.0)
-                .blur(radius: 0.5)
+                .fill(Theme.BlobPalette.cobalt.opacity(0.40 + (recordingBlend * 0.14)))
+                .scaleEffect(0.90)
+                .offset(
+                    x: lerp(diameter * 0.14, -diameter * 0.10, driftValue),
+                    y: lerp(diameter * 0.10, -diameter * 0.08, driftValue)
+                )
+                .blur(radius: diameter * 0.14)
+                .blendMode(.multiply)
+                .opacity(0.70)
+
+            Circle()
+                .fill(Theme.BlobPalette.peach.opacity(0.72 + (recordingBlend * 0.08)))
+                .scaleEffect(0.56)
+                .offset(
+                    x: lerp(-diameter * 0.02, diameter * 0.05, driftValue),
+                    y: lerp(-diameter * 0.03, diameter * 0.04, driftValue)
+                )
+                .blur(radius: diameter * 0.13)
+
+            Circle()
+                .fill(Theme.BlobPalette.skyBlue.opacity(0.62 + (recordingBlend * 0.12)))
+                .scaleEffect(0.60)
+                .offset(
+                    x: lerp(-diameter * 0.12, diameter * 0.04, driftValue),
+                    y: lerp(diameter * 0.14, diameter * 0.02, driftValue)
+                )
+                .blur(radius: diameter * 0.14)
+                .blendMode(.multiply)
                 .opacity(0.68)
 
             Circle()
-                .fill(
-                    LinearGradient(
-                        stops: [
-                            .init(color: Color.white.opacity(0.54), location: 0.00),
-                            .init(color: Color.white.opacity(0.10), location: 0.62),
-                            .init(color: .clear, location: 1.00)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
+                .fill(Theme.BlobPalette.rose.opacity(0.54 + (recordingBlend * 0.12)))
+                .scaleEffect(0.44)
+                .offset(
+                    x: lerp(diameter * 0.04, -diameter * 0.12, driftValue),
+                    y: lerp(-diameter * 0.06, diameter * 0.03, driftValue)
                 )
-                .blur(radius: diameter * 0.05)
-                .scaleEffect(x: 0.80, y: 0.44)
+                .blur(radius: diameter * 0.15)
+                .opacity(0.82)
+
+            Circle()
+                .fill(Theme.BlobPalette.lilac.opacity(0.52 + (recordingBlend * 0.12)))
+                .scaleEffect(0.52)
+                .offset(
+                    x: lerp(diameter * 0.15, diameter * 0.02, driftValue),
+                    y: lerp(-diameter * 0.04, diameter * 0.10, driftValue)
+                )
+                .blur(radius: diameter * 0.14)
+
+            Circle()
+                .fill(Theme.BlobPalette.cloud.opacity(0.32))
+                .scaleEffect(0.86)
+                .offset(x: highlightOffsetX, y: highlightOffsetY)
+                .blendMode(.screen)
+                .blur(radius: diameter * 0.18)
+
+            Circle()
+                .fill(Theme.BlobPalette.cobalt.opacity(0.26 + (recordingBlend * 0.10)))
+                .scaleEffect(0.38)
+                .offset(
+                    x: lerp(diameter * 0.19, diameter * 0.09, driftValue),
+                    y: lerp(diameter * 0.12, diameter * 0.04, driftValue)
+                )
+                .blur(radius: diameter * 0.14)
+                .blendMode(.multiply)
+                .opacity(0.72)
+
+            Circle()
+                .fill(Color.white.opacity(0.08 + (recordingBlend * 0.03)))
+                .scaleEffect(x: 0.58, y: 0.24)
                 .offset(x: sheenX, y: -diameter * 0.24)
-                .opacity(0.46 + (recordingBlend * 0.16))
+                .blur(radius: diameter * 0.09)
+                .opacity(0.08 + (recordingBlend * 0.04))
         }
         .compositingGroup()
-        .blur(radius: 0.4 + (recordingBlend * 0.8))
+        .saturation(saturation)
+        .contrast(1.04 + (recordingBlend * 0.06))
+        .blur(radius: 1.4 + (recordingBlend * 1.3))
     }
 
     private func configureContinuousAnimations() {
@@ -166,7 +180,6 @@ struct RecordingBlobView: View {
             isBreathing = false
             isDrifting = false
             isSheenShifting = false
-            isAuraExpanded = false
         }
 
         guard !reduceMotion else { return }
@@ -179,9 +192,6 @@ struct RecordingBlobView: View {
         }
         withAnimation(.easeInOut(duration: isRecording ? 5.8 : 12.0).repeatForever(autoreverses: true)) {
             isSheenShifting = true
-        }
-        withAnimation(.easeInOut(duration: isRecording ? 2.2 : 8.0).repeatForever(autoreverses: true)) {
-            isAuraExpanded = true
         }
     }
 

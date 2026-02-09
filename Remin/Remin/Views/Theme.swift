@@ -101,6 +101,22 @@ enum Theme {
         static let accentSoft = Color("AccentSoft")
     }
 
+    // MARK: - Blob Palette
+
+    struct BlobPalette {
+        static let cloud = Color(red: 0.98, green: 0.98, blue: 1.00)
+        static let powderBlue = Color(red: 0.86, green: 0.93, blue: 1.00)
+        static let skyBlue = Color(red: 0.63, green: 0.74, blue: 1.00)
+        static let iceBlue = Color(red: 0.70, green: 0.84, blue: 1.00)
+        static let cobalt = Color(red: 0.46, green: 0.58, blue: 0.96)
+        static let lavender = Color(red: 0.87, green: 0.83, blue: 0.99)
+        static let lilac = Color(red: 0.83, green: 0.74, blue: 1.00)
+        static let blush = Color(red: 0.93, green: 0.85, blue: 0.99)
+        static let rose = Color(red: 0.95, green: 0.74, blue: 0.88)
+        static let peach = Color(red: 1.00, green: 0.86, blue: 0.76)
+        static let mist = Color(red: 0.98, green: 0.95, blue: 0.98)
+    }
+
     // MARK: - Typography
 
     struct Typography {
