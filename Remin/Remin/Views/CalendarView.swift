@@ -3,7 +3,7 @@
 //  Remin
 //
 //  One Thing - Daily Voice Journal
-//  Calendar grid with recording presence indicators
+//  Calendar grid with recording presence indicators.
 //
 
 import SwiftUI
@@ -28,40 +28,56 @@ struct CalendarView: View {
             weekdayHeader
             calendarGrid
         }
-        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
     }
-
-    // MARK: - Month Header
 
     private var monthHeader: some View {
         HStack {
             Button(action: previousMonth) {
-                AppIconImage(icon: .chevronLeft, isSelected: false, size: 20)
-                    .foregroundColor(Theme.Colors.textSecondary)
-                    .frame(width: 44, height: 44)
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Theme.Colors.textPrimary)
+                    .frame(width: 34, height: 34)
+                    .background(
+                        Circle()
+                            .fill(Color.white.opacity(0.80))
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.94), lineWidth: 1)
+                            )
+                    )
             }
+            .buttonStyle(.plain)
 
             Spacer()
 
             Text(monthYearString)
-                .font(Theme.Typography.headline())
+                .font(Theme.Typography.subheadline())
                 .foregroundColor(Theme.Colors.textPrimary)
 
             Spacer()
 
             Button(action: nextMonth) {
-                AppIconImage(icon: .chevronRight, isSelected: false, size: 20)
-                    .foregroundColor(Theme.Colors.textSecondary)
-                    .frame(width: 44, height: 44)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Theme.Colors.textPrimary)
+                    .frame(width: 34, height: 34)
+                    .background(
+                        Circle()
+                            .fill(Color.white.opacity(0.80))
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.94), lineWidth: 1)
+                            )
+                    )
             }
+            .buttonStyle(.plain)
         }
-        .padding(.vertical, Theme.Spacing.sm)
     }
 
-    // MARK: - Weekday Header
-
     private var weekdayHeader: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 6) {
             ForEach(weekdaySymbols, id: \.self) { symbol in
                 Text(symbol)
                     .font(Theme.Typography.captionMedium())
@@ -71,14 +87,12 @@ struct CalendarView: View {
         }
     }
 
-    // MARK: - Calendar Grid
-
     private var calendarGrid: some View {
         let days = daysInMonth(for: displayedMonth)
 
-        return LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 7), spacing: 4) {
-            ForEach(Array(days.enumerated()), id: \.offset) { index, date in
-                if let date = date {
+        return LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 7), spacing: 6) {
+            ForEach(Array(days.enumerated()), id: \.offset) { _, date in
+                if let date {
                     CalendarDayCell(
                         date: date,
                         entry: entry(for: date),
@@ -92,8 +106,6 @@ struct CalendarView: View {
             }
         }
     }
-
-    // MARK: - Helpers
 
     private var monthYearString: String {
         let formatter = DateFormatter()
@@ -145,8 +157,6 @@ struct CalendarView: View {
     }
 }
 
-// MARK: - Calendar Day Cell
-
 struct CalendarDayCell: View {
     let date: Date
     let entry: Entry?
@@ -158,53 +168,57 @@ struct CalendarDayCell: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                RoundedRectangle(cornerRadius: Theme.Radius.small)
-                    .fill(Theme.Colors.surface.opacity(entry == nil ? 0.5 : 0.9))
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.white.opacity(entry == nil ? 0.52 : 0.74))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Color.white.opacity(0.92), lineWidth: 1)
+                    )
 
-                // Today indicator
                 if isToday {
-                    RoundedRectangle(cornerRadius: Theme.Radius.small)
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .strokeBorder(Theme.Colors.accent, lineWidth: 1.5)
                 }
 
-                VStack(spacing: Theme.Spacing.xs) {
+                VStack(spacing: 4) {
                     Text("\(calendar.component(.day, from: date))")
                         .font(isToday ? Theme.Typography.captionMedium() : Theme.Typography.caption())
                         .foregroundColor(Theme.Colors.textPrimary)
 
-                    Circle()
-                        .fill(Theme.Colors.accent)
-                        .frame(width: 6, height: 6)
-                        .opacity(entry == nil ? 0 : 1)
+                    Capsule()
+                        .fill(entryDotColor)
+                        .frame(width: entry == nil ? 4 : 12, height: 4)
+                        .opacity(entry == nil ? 0.30 : 1)
                 }
+                .padding(.vertical, 4)
             }
             .aspectRatio(1, contentMode: .fit)
         }
         .buttonStyle(.plain)
     }
-}
 
-// MARK: - Array Extension for Chunking
-
-extension Array {
-    func chunked(into size: Int) -> [[Element]] {
-        stride(from: 0, to: count, by: size).map {
-            Array(self[$0..<Swift.min($0 + size, count)])
+    private var entryDotColor: Color {
+        guard let entry else {
+            return Theme.Colors.textTertiary.opacity(0.4)
         }
+        return entry.isSample ? Theme.Colors.textSecondary : Theme.Colors.accent
     }
 }
 
-// MARK: - Preview
-
 #Preview {
     ZStack {
-        Theme.Colors.background.ignoresSafeArea()
+        ReminLuminousBackdrop().ignoresSafeArea()
 
-        CalendarView(
-            entries: Entry.generateMockEntries(),
-            onSelectDate: { date in
-                print("Selected: \(date)")
-            }
-        )
+        ReminSectionCard(title: "Calendar") {
+            CalendarView(
+                entries: Entry.generateJournalShowcaseEntries(),
+                onSelectDate: { date in
+                    print("Selected: \(date)")
+                }
+            )
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.sm)
+        }
+        .padding(.horizontal, Theme.Spacing.lg)
     }
 }

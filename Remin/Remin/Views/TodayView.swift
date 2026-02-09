@@ -20,6 +20,10 @@ struct TodayView: View {
     }
 
     private var shouldPresentFlow: Bool {
+        if viewModel.forceEntryComposerVisible && viewModel.flowState == .recordPrompt {
+            return true
+        }
+
         if viewModel.flowState == .startingPrompt || viewModel.flowState == .recording || viewModel.flowState == .preview {
             return true
         }
@@ -236,7 +240,7 @@ struct StartingPromptView: View {
         VStack(spacing: 0) {
             Spacer(minLength: 0)
 
-            VStack(spacing: Theme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.sm) {
                 Text(compactDate)
                     .font(Theme.Typography.bodySmall())
                     .foregroundColor(Theme.Colors.textTertiary)
